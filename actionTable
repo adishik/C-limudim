@@ -1,0 +1,78 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+#ifndef __ACTION_TABLE__
+#define __ACTION_TABLE__
+
+struct Action
+{
+    char * actionName;
+    char actionType;
+    int funct;
+    int opcode;
+    int numOfop;
+}
+
+static struct Action actionTable[27] = 
+                                {
+                                    {"add", 'R', 1, 0, 3},
+                                    {"sub", 'R', 2, 0, 3},
+                                    {"and", 'R', 3, 0, 3},
+                                    {"or", 'R', 4, 0, 3},
+                                    {"nor", 'R', 5, 0, 3},
+                                    {"move", 'R', 1, 1, 3},
+                                    {"nor", 'R', 2, 1, 3},
+                                    {"nor", 'R', 3, 1, 3},
+                                    {"addi", 'I', 0, 10, 3},
+                                    {"subi", 'I', 0, 11, 3},
+                                    {"andi", 'I', 0, 12, 3},
+                                    {"ori", 'I', 0, 13, 3},
+                                    {"nori", 'I', 0, 14, 3},
+                                    {"bne", 'I', 0, 15, 3},
+                                    {"beq", 'I', 0, 16, 3},
+                                    {"blt", 'I', 0, 17, 3},
+                                    {"bgt", 'I', 0, 18, 3},
+                                    {"lb", 'I', 0, 19, 3},
+                                    {"sb", 'I', 0, 20, 3},
+                                    {"lw", 'I', 0, 21, 3},
+                                    {"sw", 'I', 0, 22, 3},
+                                    {"lh", 'I', 0, 23, 3},
+                                    {"sh", 'I', 0, 24, 3},
+                                    {"jmp", 'J', 0, 30, 3},
+                                    {"la", 'J', 0, 31, 3},
+                                    {"call", 'J', 0, 32, 3},
+                                    {"stop", 'J', 0, 63, 3}
+                                }
+
+
+int * doRType(char * actionName,int * rs, int * rt, int * rd)
+{
+    if(strcmp(actionName, "add") == 0)
+    {
+        *rd = *rs + *rt;
+    }
+
+    if(strcmp(actionName, "sub") == 0)
+    {
+        *rd = *rs - *rt;
+    }
+
+    if(strcmp(actionName, "and" == 0))
+    {
+        *rd = *rs & *rt;
+    }
+
+    if(strcmp(actionName, "or") == 0)
+    {
+        *rd = *rs | *rt;
+    }
+
+    if(strcmp(actionName, "nor") == 0)
+    {
+        *rd = !(*rs | * rt);
+    }
+}
+
+#endif
