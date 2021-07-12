@@ -1,21 +1,15 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdbool.h>
+#include "actionTable.h"
 
-#ifndef __ACTION_TABLE__
-#define __ACTION_TABLE__
-
-struct Action
+struct _Action
 {
     char * actionName;
     char actionType;
     int funct;
     int opcode;
     int numOfop;
-}
+};
 
-static struct Action actionTable[27] = 
+static struct _Action actionTable[27] = 
                                 {
                                     {"add", 'R', 1, 0, 3},
                                     {"sub", 'R', 2, 0, 3},
@@ -44,7 +38,7 @@ static struct Action actionTable[27] =
                                     {"la", 'J', 0, 31, 3},
                                     {"call", 'J', 0, 32, 3},
                                     {"stop", 'J', 0, 63, 3}
-                                }
+                                };
 
 
 int * doRType(char * actionName,int * rs, int * rt, int * rd)
@@ -59,7 +53,7 @@ int * doRType(char * actionName,int * rs, int * rt, int * rd)
         *rd = *rs - *rt;
     }
 
-    if(strcmp(actionName, "and" == 0))
+    if(strcmp(actionName, "and") == 0)
     {
         *rd = *rs & *rt;
     }
@@ -73,6 +67,7 @@ int * doRType(char * actionName,int * rs, int * rt, int * rd)
     {
         *rd = !(*rs | * rt);
     }
+
+    return 0;
 }
 
-#endif
