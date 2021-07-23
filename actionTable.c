@@ -6,8 +6,12 @@ int * convDectoBin(int decimalNumber, int  * binaryNumber)
     int i = 0, j;
 
     quotient = decimalNumber;
-
-
+    bool isNegative = false;
+    if(decimalNumber < 0)
+    {
+        isNegative = true;
+        decimalNumber =  abs(decimalNumber);
+    }
     while(quotient!=0){
 
         binaryNumber[i++]= quotient % 2;
@@ -15,8 +19,36 @@ int * convDectoBin(int decimalNumber, int  * binaryNumber)
         quotient = quotient / 2;
 
     }
-    
-    return binaryNumber;
+}
+
+if(isNegative)
+{
+    for (int  i = 0; i < 31; i++)
+    {
+        if(binaryNumber[i] == 0)
+        {
+            binaryNumber[i] = 1;
+        }  
+
+        else
+        {
+            binaryNumber[i] = 0;
+        }
+    }
+
+    for (int j = 0; j < 31; j++)
+    {
+        if(binaryNumber[j] == 0)
+        {
+            binaryNumber[j]++;
+            return binaryNumber;
+        }
+
+        else
+        {
+            binaryNumber[j]--;
+        }
+    }
 }
 
 static struct _Action actionTable[27] = 
@@ -26,9 +58,9 @@ static struct _Action actionTable[27] =
                                     {"and", 'R', 3, 0, 3},
                                     {"or", 'R', 4, 0, 3},
                                     {"nor", 'R', 5, 0, 3},
-                                    {"move", 'R', 1, 1, 3},
-                                    {"nor", 'R', 2, 1, 3},
-                                    {"nor", 'R', 3, 1, 3},
+                                    {"move", 'R', 1, 1, 2},
+                                    {"mvhi", 'R', 2, 1, 2},
+                                    {"mvlo", 'R', 3, 1, 2},
                                     {"addi", 'I', 0, 10, 3},
                                     {"subi", 'I', 0, 11, 3},
                                     {"andi", 'I', 0, 12, 3},
@@ -44,10 +76,10 @@ static struct _Action actionTable[27] =
                                     {"sw", 'I', 0, 22, 3},
                                     {"lh", 'I', 0, 23, 3},
                                     {"sh", 'I', 0, 24, 3},
-                                    {"jmp", 'J', 0, 30, 3},
-                                    {"la", 'J', 0, 31, 3},
-                                    {"call", 'J', 0, 32, 3},
-                                    {"stop", 'J', 0, 63, 3}
+                                    {"jmp", 'J', 0, 30, 1},
+                                    {"la", 'J', 0, 31, 1},
+                                    {"call", 'J', 0, 32, 1},
+                                    {"stop", 'J', 0, 63, 0}
                                 };                          
 
 
@@ -86,7 +118,6 @@ int * codeAction(Action * action, int rs, int rt, int rd, int imme, int reg, int
 
     else
     {
-
         if(action->actionType == 'R')
         {
             int * tempOP = (int*)malloc(6 * sizeof(int));
