@@ -19,36 +19,39 @@ int * convDectoBin(int decimalNumber, int  * binaryNumber)
         quotient = quotient / 2;
 
     }
-}
 
-if(isNegative)
-{
-    for (int  i = 0; i < 31; i++)
+
+    if(isNegative)
     {
-        if(binaryNumber[i] == 0)
+        for (int  i = 0; i < 31; i++)
         {
-            binaryNumber[i] = 1;
-        }  
+            if(binaryNumber[i] == 0)
+            {
+                binaryNumber[i] = 1;
+            }  
 
-        else
+            else
+            {
+                binaryNumber[i] = 0;
+            }
+        }
+
+        for (int j = 0; j < 31; j++)
         {
-            binaryNumber[i] = 0;
+            if(binaryNumber[j] == 0)
+            {
+                binaryNumber[j]++;
+                return binaryNumber;
+            }
+
+            else
+            {
+                binaryNumber[j]--;
+            }
         }
     }
 
-    for (int j = 0; j < 31; j++)
-    {
-        if(binaryNumber[j] == 0)
-        {
-            binaryNumber[j]++;
-            return binaryNumber;
-        }
-
-        else
-        {
-            binaryNumber[j]--;
-        }
-    }
+    return binaryNumber;
 }
 
 static struct _Action actionTable[27] = 
