@@ -17,6 +17,8 @@ struct _FirstScan // define action in Assembly
 };
 typedef struct _FirstScan FirstScan;
 bool checkEmpty(char * line);
+bool isAlphabet(char firstChar);
+bool isLabel(char * label);
 FirstScan * doScan(char * asFile);
 
 #endif
