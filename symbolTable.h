@@ -9,8 +9,9 @@ struct _SymbolNode // define action in Assembly
     int val;
     char * att;
     struct _SymbolNode nextNode;
+
 };
 typedef struct _SymbolNode SymbolNode;
 
-struct SymbolNode * createNode();
-void addSymbole(char * symbolName, int val, char * att);
+struct SymbolNode * createSymbol();
+void addSymbole(char * symbolName, int val, char * att, SymbolNode * node);
