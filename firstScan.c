@@ -5,7 +5,7 @@ FirstScan * initScan()
     FirstScan * firstScan = (FirstScan*)malloc(sizeof(FirstScan));
     firstScan->firstSymbol = createSymbol();
     firstScan->firstLine = createIntNode();
-    firstScan->currentLine = NULL;
+    firstScan->currentLine = firstScan->firstLine;
     firstScan->DC = 0;
     firstScan->IC 100;
 }
@@ -65,6 +65,9 @@ FirstScan * doScan(char * asFile)
     SymbolNode * firstSymbol = NULL;
     SymbolNode * curSymbol = NULL;
     char * temp;
+    int * intTemp;
+    TextNode * tempNode = createNode();
+    int ** doublePointer;
     while(curNode != NULL)
     {
         while(checkEmpty(curNode))
@@ -106,16 +109,26 @@ FirstScan * doScan(char * asFile)
                         if(temp[2] == b)
                         {
                             firstScan->DC = firstScan->DC + (curNode->nodeSize - 2);
-                            if(firstScan->firstLine->val = 0)
-                            {
-                                temp = wordParser(temp);
-                                for (int z = 1; z < curNode->nodeSize - 2; z++)
+                                tempNode = wordParser(temp);
+                                intTemp = (int*)malloc((tempNode->nodeSize - 1) * sizeof(int))
+                                while(tempNode->nextNode != NULL)
                                 {
-                                    firstScan->firstLine->val = convDectoBin(atoi(temp[z]),firstScan->firstLine->val);
-                                    firstScan->currentLine = // STOPED HERE Need to convert temp to array of int and assign it 
+                                    intTemp[z] = atoi(tempNode->val[0]);
+                                    tempNode = tempNode->nextNode;
+                                    z++;
+                                }
+
+                                doublePointer = freeDInstructions('b', intTemp, tempNode->nodeSize - 1);
+
+                                for (int i = 0; i < tempNode->nodeSize - 1; i++)
+                                {
+                                    firstScan->currentLine->val = doublePointer[i];
+                                    firstScan->currentLine = firstScan->currentLine->nextNode;
                                 }
                                 
-                            }
+                            free(intTemp);
+                            free(doublePointer);
+                            free(tempNode);
 
                         }
 
