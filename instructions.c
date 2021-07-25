@@ -58,10 +58,10 @@ int * convDectoBin(int decimalNumber, int  * binaryNumber)
 
 int  ** freeDInstructions(char instructionType,int * intstructionParms, int parmsSize)
 {
+    int ** instructionpPointer = malloc(sizeof(int *) * parmsSize);
+
     if(instructionType == 'b')
     {
-        int * instructionpPointer[parmsSize];
-
         for(int k = 0; k < parmsSize; k++)
         {
             instructionpPointer[k] = (int*)malloc(sizeof(byte));
@@ -74,13 +74,10 @@ int  ** freeDInstructions(char instructionType,int * intstructionParms, int parm
 
             free(tempBin);
         }
-        
     }
 
     if(instructionType == 'w')
     {
-       int * instructionpPointer[parmsSize];
-
         for(int k = 0; k < parmsSize; k++)
         {
             instructionpPointer[k] = (int*)malloc(sizeof(4 * byte));
@@ -98,8 +95,6 @@ int  ** freeDInstructions(char instructionType,int * intstructionParms, int parm
 
     if(instructionType == 'h')
     {
-        int * instructionpPointer[parmsSize];
-
         for(int k = 0; k < parmsSize; k++)
         {
             instructionpPointer[k] = (int*)malloc(sizeof(2 * byte));
@@ -115,23 +110,29 @@ int  ** freeDInstructions(char instructionType,int * intstructionParms, int parm
         
     }
 
-    for(i = 0; i < parmsSize;i = i + (parmsSize * byte))
-        {
-            instructionpPointer[i] = convDectoBin(intstructionParms[i],instructionpPointer[i]);
-        }
-
-
     return instructionpPointer;
 }
 
-char * freeAsInstruction(char * parm)
+int ** freeAsInstruction(char * parm)
 {
-    char * instructionpPointer = (char*)malloc(sizeof(parm));
-
-    for (int i = 0; i < parm; i++)
-    {
-        instructionpPointer = parm[i];  
-    }
     
+    int ** instructionpPointer = malloc(sizeof(int *) * (int)strlen(parm));
+    int i = 0, k = 0;
+    for(int k = 0; k < strlen(parm); k++)
+        {
+            instructionpPointer[k] = (int*)malloc(sizeof(byte));
+            int * tempBin = (int*)malloc(sizeof(byte));
+            tempBin = convDectoBin((int)parm[k],tempBin);
+            for (int i = 0; i < 8; i++)
+            {
+                instructionpPointer[k][i] = tempBin[i];
+            }
+            free(tempBin);
+        }
+
+    instructionpPointer[strlen(parm)] = 0;  
+
+    return instructionpPointer;
+
 }
 
