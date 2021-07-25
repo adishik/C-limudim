@@ -2,7 +2,7 @@
 #define MAX_LABEL_LEN 31 //maximum lenght of a lable in assembly
 
 
-struct SymbolNode * createNode()
+struct SymbolNode * createSymbol()
 {
     struct SymbolNode * node = (SymbolNode*)malloc(sizeof(SymbolNode));
     node->symbole = (char*)malloc(MAX_LABEL_LEN * sizeof(char));
@@ -10,14 +10,14 @@ struct SymbolNode * createNode()
     node->att = (char*)malloc(MAX_LABEL_LEN * sizeof(char));
     node->nextNode = (SymbolNode*)malloc(sizeof(SymbolNode));
 
+
     return node;
 };
 
-void addSymbole(char * symbolName, int val, char * att)
+void addSymbole(char * symbolName, int val, char * att, SymbolNode * node)
 {
-    SymbolNode * node = createNode();
     strcpy(node->symbole, symbolName);
     node->val = val;
-    strcpy(node->att,att);
+    strcat(node->att,att);
 }
 
