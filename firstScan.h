@@ -14,6 +14,7 @@ struct _FirstScan // define action in Assembly
     IntNode * currentLine;
     int IC;
     int DC;
+    int lineCounter;
 };
 typedef struct _FirstScan FirstScan;
 bool checkEmpty(char * line);
