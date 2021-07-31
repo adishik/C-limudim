@@ -108,7 +108,6 @@ Action  * getAction(char * actionName)
 
     return 0;
 
-    return 0;
 }
 int * codeAction(Action * action, int rs, int rt, int rd, int imme, int reg, int add)
 {
