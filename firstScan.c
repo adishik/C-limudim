@@ -38,7 +38,7 @@ bool isAlphabet(char firstChar)
 
 bool isLabel(char * label)
 {
-    for (int i = 0; i < strlen(lable); i++)
+    for (int i = 0; i < strlen(label); i++)
     {
         if(label[i] == ':')
         {
@@ -46,10 +46,8 @@ bool isLabel(char * label)
         }
     }
 
-    else
-    {
-        return false;
-    }
+
+    return false;
     
 }
 
@@ -245,72 +243,127 @@ FirstScan * doScan(char * asFile)
                         firstScan->DC = firstScan->DC + (curNode->nodeSize - 2);
                     }
                 }
+            }
             free(temp);
-        }
-    }
-
-    else
-    {
-        if(isLabel(curNode->val))
-        {
-            symbolFlag = 1;
-        }
-    
-    tempNode = wordParser(curNode->val);
-    tempAction = getAction(tempNode->val);
-        if(temp == 0)
-        {
-            printf("There is no %s action, in row %d", tempNode->val, FirstScan->lineCounter);
-
         }
 
         else
         {
-            if(symbolFlag == 1)
+            if(isLabel(curNode->val))
             {
-                if(firstSymbol == NULL)
+                symbolFlag = 1;
+            }
+        
+        tempNode = wordParser(curNode->val);
+        tempAction = getAction(tempNode->val);
+            if(temp == 0)
+            {
+                printf("There is no %s action, in row %d", tempNode->val, FirstScan->lineCounter);// checks action validity 
+                FirstScan->currentLine = FirstScan->currentLine->nextNode;
+                        FirstScan->lineCounter++;
+                        FirstScan->IC += 4;
+
+            }
+
+            else
+            {
+                if(symbolFlag == 1)
                 {
-                    firstSymbol = createSymbol();
-                    addSymbole(curWord->val, firstScan->IC, "data", firstSymbol);
-                    lastSymbol = firstSymbol;
-                    curSymbol = lastSymbol;
+                    if(firstSymbol == NULL)
+                    {
+                        firstSymbol = createSymbol();
+                        addSymbole(curWord->val, firstScan->IC, "data", firstSymbol);
+                        lastSymbol = firstSymbol;
+                        curSymbol = lastSymbol;
+                    }
+                        
+                    else
+                    {
+                        curSymbol = createSymbol();
+                        addSymbole(curWord->val, firstScan->IC, "data", curSymbol);
+                        lastSymbol->nextNode = curSymbol;
+                        lastSymbol = curSymbol;
+                        firstScan->DC = firstScan->DC + (curNode->nodeSize - 2);
+                    }       
                 }
-                    
+                
+                if(tempAction->actionType == 'R')
+                {
+                    // verify all are names of rgs ***********************
+                    if(tempAction->numOfop == 3)
+                    {
+                        FirstScan->currentLine->val = codeAction(tempAction,atoi(tempNode->val[symbolFlag + 1]), atoi(tempNode->val[symbolFlag + 2]), atoi(tempNode->val[symbolFlag + 3]), 0, 0 , 0);
+                        FirstScan->currentLine = FirstScan->currentLine->nextNode;
+                        FirstScan->lineCounter++;
+                        FirstScan->IC += 4;
+                    }
+
+                    if(tempAction->numOfop == 2)
+                    {
+                        FirstScan->currentLine->val = codeAction(tempAction,atoi(tempNode->val[symbolFlag + 1]), 0, atoi(tempNode->val[symbolFlag + 2]), 0, 0 , 0);
+                        FirstScan->currentLine = FirstScan->currentLine->nextNode;
+                        FirstScan->lineCounter++;
+                        FirstScan->IC += 4;
+                    }
+                }
+
+                if(tempAction->actionType == 'I')
+                {
+                    if(tempAction->opcode < 15 && tempAction->opcode > 9)
+                    {
+                        FirstScan->currentLine->val = codeAction(tempAction,atoi(tempNode->val[symbolFlag + 1]), atoi(tempNode->val[symbolFlag + 3]), 0,atoi(tempNode->val[symbolFlag + 2]), 0, 0);
+                        FirstScan->currentLine = FirstScan->currentLine->nextNode;
+                        FirstScan->lineCounter++;
+                        FirstScan->IC += 4;
+                    }
+
+                    if(tempAction->opcode < 19 && tempAction->opcode > 14)
+                    {
+                        if(isAlphabet(tempNode->val[symbolFlag + 3][0]) == 1)
+                        {
+                            firstScan->currentLine->labelIsOp = true;
+                        }
+                    }
+
+                    else
+                    {
+                        FirstScan->currentLine->val = codeAction(tempAction,atoi(tempNode->val[symbolFlag + 1]), atoi(tempNode->val[symbolFlag + 3]), 0,atoi(tempNode->val[symbolFlag + 2]), 0, 0);
+                        FirstScan->currentLine = FirstScan->currentLine->nextNode;
+                        FirstScan->lineCounter++;
+                        FirstScan->IC += 4;
+                    }
+                }
+
                 else
                 {
-                    curSymbol = createSymbol();
-                    addSymbole(curWord->val, firstScan->IC, "data", curSymbol);
-                    lastSymbol->nextNode = curSymbol;
-                    lastSymbol = curSymbol;
-                    firstScan->DC = firstScan->DC + (curNode->nodeSize - 2);
-                }       
-            }
-            //int * codeAction(Action * action, int rs, int rt, int rd, int imme, int reg, int add)
-            if(tempAction->actionType == 'R')
-            {
-                if(tempAction->numOfop == 3)
-                {
-                    FirstScan->currentLine->val = codeAction(tempAction,tempNode->val[symbolFlag + 1], tempNode->val[symbolFlag + 2], tempNode->val[symbolFlag + 3], 0, 0 , 0);
-                    FirstScan->currentLine = FirstScan->currentLine->nextNode;
-                    FirstScan->lineCounter++;
-                    FirstScan->IC += 4;
-                }
+                    if(isAlphabet(tempNode->val[symbolFlag + 1] == 1))
+                    {
+                        firstScan->currentLine->labelIsOp = true;
+                    }
 
-                if(tempAction->numOfop == 2)
-                {
-                    FirstScan->currentLine->val = codeAction(tempAction,tempNode->val[symbolFlag + 1], 0, tempNode->val[symbolFlag + 2], 0, 0 , 0);
-                    FirstScan->currentLine = FirstScan->currentLine->nextNode;
-                    FirstScan->lineCounter++;
-                    FirstScan->IC += 4;
+                    else
+                    {
+                        //int * codeAction(Action * action, int rs, int rt, int rd, int imme, int reg, int add)
+                        if(tempAction->opcode == 30) // jmp
+                        {
+                            FirstScan->currentLine->val = codeAction(tempAction, 0, 0, 0, , 0, atoi(tempNode->val[symbolFlag + 1]));
+                            FirstScan->currentLine = FirstScan->currentLine->nextNode;
+                            FirstScan->lineCounter++;
+                            FirstScan->IC += 4;
+                        }
+
+                        else if(tempAction->opcode == 63)
+                        {
+                            FirstScan->currentLine->val = codeAction(tempAction, 0, 0, 0, 0, 0, 0);
+                            FirstScan->currentLine = FirstScan->currentLine->nextNode;
+                            FirstScan->lineCounter++;
+                            FirstScan->IC += 4;
+                        }
+                    }
+                    
                 }
             }
-
         }
-    
-    
-
-    }
-
-    
     }
 }
+
