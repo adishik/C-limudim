@@ -1,9 +1,10 @@
-#include "instructions.h"
+#include "actionTable.h"
 #define byte 1
 
 #ifndef __INSTRUCTION_TABLE__
 #define __INSTRUCTION_TABLE__
 
-int  ** freeDInstructions(int instructionType, char instructionSubType,int * intstructionParms, int parmsSize);
+int ** freeDInstructions(char instructionType, int * intstructionParms, int parmsSize);
+int ** freeAsInstruction(char * parm);
 
 #endif
