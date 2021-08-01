@@ -7,7 +7,7 @@
 #ifndef __FIRST_SCAN__
 #define __FIRST_SCAN__
 
-struct _FirstScan // define action in Assembly 
+struct _FirstScan
 {
     SymbolNode * firstSymbol;
     IntNode * firstLine;
@@ -17,9 +17,9 @@ struct _FirstScan // define action in Assembly
     int lineCounter;
 };
 typedef struct _FirstScan FirstScan;
-bool checkEmpty(char * line);
-bool isAlphabet(char firstChar);
-bool isLabel(char * label);
-FirstScan * doScan(char * asFile);
+int checkEmpty(char * line);
+int isAlphabet(char firstChar);
+int isLabel(char * label);
+FirstScan * doScan(char * asFile, int strLen);
 
 #endif
