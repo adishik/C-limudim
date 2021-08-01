@@ -1,4 +1,4 @@
-FLAGS = -ansi -Wall -Wextra -Werror -pedantic-errors
+FLAGS = -ansi -Wall -pedantic-errors
 LIBS = -lm
 
 all: final
@@ -6,10 +6,8 @@ all: final
 linuxClean:
 	rm -rf *.o
 	rm cluster
-final:  actionTable.o firstScan.o instructions.o intNode.o parser.o symbolTable.o 
-	gcc  actionTable.o firstScan.o instructions.o intNode.o parser.o symbolTable.o -o final $(LIBS)
-#final.o: final.c
-#gcc $(FLAGS) -c final.c
+final:  actionTable.o instructions.o intNode.o parser.o symbolTable.o firstScan.o main.o
+	gcc  actionTable.o instructions.o intNode.o parser.o symbolTable.o firstScan.o main.o -o final $(LIBS)
 
 actionTable: actionTable.o
 	gcc actionTable.o -o actionTable $(LIBS)
@@ -35,3 +33,7 @@ symbolTable: symbolTable.o
 	gcc symbolTable.o -o symbolTable $(LIBS)
 symbolTable.o: symbolTable.c
 	gcc $(FLAGS) -c symbolTable.c
+main: main.o
+	gcc main.o -o main $(LIBS)
+symbolTable.o: main.c
+	gcc $(FLAGS) -c main.c
