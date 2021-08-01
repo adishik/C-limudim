@@ -11,7 +11,7 @@ struct _IntNode
     int * val;
     struct _IntNode * nextNode;
     int nodeSize;
-    bool labelIsOp;
+    int labelIsOp;
 };
 
 typedef struct _IntNode IntNode;
