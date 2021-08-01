@@ -1,18 +1,18 @@
 #include "symbolTable.h"
-#define MAX_LABEL_LEN 31 //maximum lenght of a lable in assembly
+#define MAX_LABEL_LEN 31 
 
 
-struct SymbolNode * createSymbol()
+SymbolNode * createSymbol()
 {
-    struct SymbolNode * node = (SymbolNode*)malloc(sizeof(SymbolNode));
+    SymbolNode * node = (SymbolNode*)malloc(sizeof(SymbolNode));
     node->symbole = (char*)malloc(MAX_LABEL_LEN * sizeof(char));
-    node->val = (int*)calloc(sizeof(int));;
+    node->val = 0;
     node->att = (char*)malloc(MAX_LABEL_LEN * sizeof(char));
     node->nextNode = (SymbolNode*)malloc(sizeof(SymbolNode));
 
 
     return node;
-};
+}
 
 void addSymbole(char * symbolName, int val, char * att, SymbolNode * node)
 {
