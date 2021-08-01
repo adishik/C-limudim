@@ -1,12 +1,16 @@
 #include "actionTable.h"
 
+#define true 1
+#define false 0
+
 int * convDectoBin(int decimalNumber, int  * binaryNumber) 
 {
     long int quotient;
-    int i = 0, j;
+    int i = 0,j = 0;
+    int isNegative = false;
 
     quotient = decimalNumber;
-    bool isNegative = false;
+    
     if(decimalNumber < 0)
     {
         isNegative = true;
@@ -20,10 +24,9 @@ int * convDectoBin(int decimalNumber, int  * binaryNumber)
 
     }
 
-
     if(isNegative)
     {
-        for (int  i = 0; i < 31; i++)
+        for (i = 0; i < 31; i++)
         {
             if(binaryNumber[i] == 0)
             {
@@ -36,7 +39,7 @@ int * convDectoBin(int decimalNumber, int  * binaryNumber)
             }
         }
 
-        for (int j = 0; j < 31; j++)
+        for (j = 0; j < 31; j++)
         {
             if(binaryNumber[j] == 0)
             {
@@ -88,7 +91,8 @@ static struct _Action actionTable[27] =
 
 Action  * getAction(char * actionName)
 {
-    for(int k = 0; k < 27; k++)
+    int k;
+    for(k = 0; k < 27; k++)
     {
         if(strcmp(actionName, actionTable[k].actionName) == 0)
         {
@@ -112,6 +116,14 @@ Action  * getAction(char * actionName)
 int * codeAction(Action * action, int rs, int rt, int rd, int imme, int reg, int add)
 {
     int  * binLine = (int*)malloc(32 * sizeof(int));
+    int * tempOP;
+    int * tempRS;
+    int * tempRD;
+    int * tempFunct;
+    int * tempRT;
+    int * tempAdd;
+    int * tempImme;
+    int y = 0;
     if(binLine == NULL)
     {
         printf("out of memory!");
@@ -122,7 +134,8 @@ int * codeAction(Action * action, int rs, int rt, int rd, int imme, int reg, int
     {
         if(action->actionType == 'R')
         {
-            int * tempOP = (int*)malloc(6 * sizeof(int));
+            
+            tempOP = (int*)malloc(6 * sizeof(int));
             tempOP = convDectoBin(action->opcode, tempOP);
             binLine[31] = tempOP[5];
             binLine[30] = tempOP[4];
@@ -132,7 +145,8 @@ int * codeAction(Action * action, int rs, int rt, int rd, int imme, int reg, int
             binLine[26] = tempOP[0];
             free(tempOP);
 
-            int * tempRS = (int*)malloc(5 * sizeof(int));
+            
+            tempRS = (int*)malloc(5 * sizeof(int));
             tempRS = convDectoBin(rs,tempRS);
             binLine[25] = tempRS[4];
             binLine[24] = tempRS[3];
@@ -141,7 +155,8 @@ int * codeAction(Action * action, int rs, int rt, int rd, int imme, int reg, int
             binLine[21] = tempRS[0];
             free(tempRS);
 
-            int * tempRD = (int*)malloc(5 * sizeof(int));
+            
+            tempRD = (int*)malloc(5 * sizeof(int));
             tempRD = convDectoBin(rt, tempRD);
             binLine[15] = tempRS[4];
             binLine[14] = tempRS[3];
@@ -150,7 +165,8 @@ int * codeAction(Action * action, int rs, int rt, int rd, int imme, int reg, int
             binLine[11] = tempRS[0];
             free(tempRD);
 
-            int * tempFunct = (int*)malloc(5 * sizeof(int));
+            
+            tempFunct = (int*)malloc(5 * sizeof(int));
             tempFunct = convDectoBin(action->funct, tempFunct);
             binLine[10] = tempFunct[4];
             binLine[9] = tempFunct[3];
@@ -161,7 +177,8 @@ int * codeAction(Action * action, int rs, int rt, int rd, int imme, int reg, int
 
             if(action->numOfop == 3)
             {
-                int * tempRT = (int*)malloc(5 * sizeof(int));
+                
+                tempRT = (int*)malloc(5 * sizeof(int));
                 tempRT = convDectoBin(rt,tempRT);
                 binLine[20] = tempRT[4];
                 binLine[19] = tempRT[3];
@@ -174,7 +191,7 @@ int * codeAction(Action * action, int rs, int rt, int rd, int imme, int reg, int
 
         if(action->actionType == 'I')
         {
-            int * tempOP = (int*)malloc(6 * sizeof(int));
+            tempOP = (int*)malloc(6 * sizeof(int));
             tempOP = convDectoBin(action->opcode, tempOP);
             binLine[31] = tempOP[5];
             binLine[30] = tempOP[4];
@@ -184,7 +201,7 @@ int * codeAction(Action * action, int rs, int rt, int rd, int imme, int reg, int
             binLine[26] = tempOP[0];
             free(tempOP);
 
-            int * tempRS = (int*)malloc(5 * sizeof(int));
+            tempRS = (int*)malloc(5 * sizeof(int));
             tempRS = convDectoBin(rs,tempRS);
             binLine[25] = tempRS[4];
             binLine[24] = tempRS[3];
@@ -193,7 +210,7 @@ int * codeAction(Action * action, int rs, int rt, int rd, int imme, int reg, int
             binLine[21] = tempRS[0];
             free(tempRS);
 
-            int * tempRT = (int*)malloc(5 * sizeof(int));
+            tempRT = (int*)malloc(5 * sizeof(int));
             tempRT = convDectoBin(rt,tempRT);
             binLine[20] = tempRT[4];
             binLine[19] = tempRT[3];
@@ -202,7 +219,7 @@ int * codeAction(Action * action, int rs, int rt, int rd, int imme, int reg, int
             binLine[16] = tempRT[0];
             free(tempRT);
 
-            int * tempImme = (int*)malloc(16 * sizeof(int));
+            tempImme = (int*)malloc(16 * sizeof(int));
             tempImme = convDectoBin(imme, tempImme);
             binLine[15] = tempImme[15];
             binLine[14] = tempImme[14];
@@ -226,7 +243,8 @@ int * codeAction(Action * action, int rs, int rt, int rd, int imme, int reg, int
 
         if(action->actionType == 'J')
         {
-            int * tempOP = (int*)malloc(6 * sizeof(int));
+
+            tempOP = (int*)malloc(6 * sizeof(int));
             tempOP = convDectoBin(action->opcode, tempOP);
             binLine[31] = tempOP[5];
             binLine[30] = tempOP[4];
@@ -240,14 +258,13 @@ int * codeAction(Action * action, int rs, int rt, int rd, int imme, int reg, int
             binLine[25] = reg;
 
 
-            int * tempAdd = (int*)malloc(24 * sizeof(int));
+
+            tempAdd = (int*)malloc(24 * sizeof(int));
             tempAdd = convDectoBin(add, tempAdd);
-            for(int y = 24; y >= 0; y--)
+            for(y = 24; y >= 0; y--)
             {
                 binLine[y] = tempAdd[y];
             }
-            
-            free(tempImme);
         }
 
 
