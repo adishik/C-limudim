@@ -10,12 +10,13 @@ struct _TextNode
 {
     char * val;
     struct _TextNode * nextNode;
+    int nodeSize;
 };
 
 typedef struct _TextNode TextNode;
-TextNode * createNode();
+TextNode * createNode(int strLen);
 
-TextNode * lineParser(char * txt);
+TextNode * lineParser(char * txt, int strLen);
 TextNode * wordParser(char * line);
 
 
