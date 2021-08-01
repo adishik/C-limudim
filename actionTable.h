@@ -6,7 +6,7 @@
 #ifndef __ACTION_TABLE__
 #define __ACTION_TABLE__
 
-struct _Action // define action in Assembly 
+struct _Action
 {
     char * actionName;
     char actionType;
@@ -16,10 +16,10 @@ struct _Action // define action in Assembly
 };
 typedef struct _Action Action;
 
-int * convDectoBin(int decimalNumber, int  * binaryNumber); // converts a Decimal number to binary
-Action  * getAction(char * actionName); // get string and return Avrion object
+int * convDectoBin(int decimalNumber, int  * binaryNumber); 
+Action  * getAction(char * actionName); 
 
-int * codeAction(Action  * action, int rs, int rt, int rd ); // truining action into binary
+int * codeAction(Action  * action, int rs, int rt, int rd, int imme, int reg, int add ); 
 
 #endif
 
