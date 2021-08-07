@@ -15,20 +15,27 @@ FirstScan * initScan()
     firstScan->currentLine = firstScan->firstLine;
     firstScan->DC = 0;
     firstScan->IC = 100;
-    firstScan->lineCounter = 0;
+    firstScan->lineCounter = 1;
 
     return firstScan;
 }
 
+
+
 int checkEmpty(char * line)
 {
-    int i = 0;
+    int i = 0, counter = 0;
     for (i = 0; i < strlen(line); i++)
     {
         if(line[i] == ' ' || line[i] == '\t' || line[i] == '\0')
         {
-            return true;
+            counter ++;
         }
+    }
+
+    if(counter == i)
+    {
+        return true;
     }
 
     return false;
@@ -65,16 +72,16 @@ FirstScan * doScan(char * asFile, int strLen)
 {
     
     char * temp;
-    int * intTemp;
     int symbolFlag = 0;
     int ** doublePointer;
     int instructionFlag = 0;
-    int z = 0, i = 0;
+    int z = 0, i = 0, y = 0;
     TextNode * firstNode;
     TextNode * curNode;
     TextNode * curWord;
     TextNode * tempNode;
     Action * tempAction;
+    int intTemp[MAX_LABEL_LEN];
 
     SymbolNode * lastSymbol = NULL;
     SymbolNode * firstSymbol = NULL;
@@ -87,19 +94,17 @@ FirstScan * doScan(char * asFile, int strLen)
     firstScan = initScan();
     firstNode = createNode(MAX_LABEL_LEN);
     firstNode = lineParser(asFile, strLen);
-    curNode = createNode(MAX_LABEL_LEN);
     curNode = firstNode;
     curWord = createNode(MAX_LABEL_LEN);
     tempNode = createNode(MAX_LABEL_LEN);
     tempAction = (Action*)malloc(sizeof(Action));
 
-    while(curNode != NULL)
+    while(curNode->val != NULL)
     {
-        printf("this is already a problem line 107\n");
-        printf("the size of val is %d\n", curNode->nodeSize);
-        while(checkEmpty(curNode->val))
+       
+        while(checkEmpty(curNode->val) == 1)
         {
-            if(curNode->nextNode != NULL)
+            if(curNode->nextNode->val != NULL)
             {
                 curNode = curNode->nextNode;
             }
@@ -109,50 +114,52 @@ FirstScan * doScan(char * asFile, int strLen)
                 break;
             }
         }
+        temp = (char*)malloc(sizeof(MAX_LABEL_LEN));
+        strcpy(temp, curNode->val);
+        curWord = wordParser(temp);
 
-
-        curWord = wordParser(curNode->val);
-        printf("this is already a problem line 123\n");
         if(isLabel(curNode->val))
         {
             symbolFlag = 1;
         }
-        
-        printf("this is already a problem line 115\n");
-        printf("%p\n", (void *)curNode->val);
-        printf("%s\n", curNode->val);
-        temp = strchr(curNode->val,'.');
 
-        if(temp != NULL)
+
+        
+        
+        
+        if(strchr(temp,'.') != NULL)
         {
-            printf("Sucess creating temp with lenght %lu\n", strlen(temp));
+            
+            temp = strchr(curNode->val,'.');
             //add syntax check********************
         
             if(temp[2] == 'b')
-            {
-                firstScan->DC = firstScan->DC + (curNode->nodeSize - 2);
+            {         
                 tempNode = wordParser(temp);
                 tempNode = tempNode->nextNode;
-                intTemp = (int*)malloc((tempNode->nodeSize - 1) * sizeof(int));
-                while(tempNode->nextNode != NULL)
+                while(tempNode->val != NULL)
                 {
                     intTemp[z] = atoi(tempNode->val);
                     tempNode = tempNode->nextNode;
                     z++;
                 }
 
-                doublePointer = freeDInstructions('b', intTemp, tempNode->nodeSize - 1);
+                firstScan->DC = firstScan->DC + (z);
 
-                for (i = 0; i < tempNode->nodeSize - 1; i++)
+                doublePointer = malloc(z + 1 * sizeof(int*));
+                
+                doublePointer = freeDInstructions('b', intTemp, z);
+
+
+                for (i = 0; i < z ; i++)
                 {
-                    printf("problem is here at line 138 becaseu i is : %d\n", i);
                     firstScan->currentLine->val = doublePointer[i];
+                    firstScan->currentLine->nextNode = createIntNode();
                     firstScan->currentLine = firstScan->currentLine->nextNode;
                     firstScan->lineCounter++;
                     firstScan->IC++;
                 }
                     
-                free(intTemp);
                 free(doublePointer);
                 free(tempNode);
                 instructionFlag ++;
@@ -161,61 +168,74 @@ FirstScan * doScan(char * asFile, int strLen)
 
             if(temp[2] == 'w')
             {
-
-                firstScan->DC = firstScan->DC + (4 * (curNode->nodeSize - 2));
+                
+                
                 tempNode = wordParser(temp);
                 tempNode = tempNode->nextNode;
-                intTemp = (int*)malloc((tempNode->nodeSize - 1) * sizeof(int));
-                while(tempNode->nextNode != NULL)
+                while(tempNode->val != NULL)
                 {
                     intTemp[z] = atoi(tempNode->val);
                     tempNode = tempNode->nextNode;
                     z++;
                 }
 
-                doublePointer = freeDInstructions('w', intTemp, tempNode->nodeSize - 1);
+                firstScan->DC = firstScan->DC + (4 * (z));
 
-                for (i = 0; i < tempNode->nodeSize - 1; i++)
+                doublePointer = malloc(z + 1 * sizeof(int*));
+                
+                doublePointer = freeDInstructions('w', intTemp, z);
+
+
+                for (i = 0; i < z ; i++)
                 {
                     firstScan->currentLine->val = doublePointer[i];
+                    firstScan->currentLine->nextNode = createIntNode();
                     firstScan->currentLine = firstScan->currentLine->nextNode;
                     firstScan->lineCounter++;
                     firstScan->IC++;
                 }
                     
-                free(intTemp);
                 free(doublePointer);
                 free(tempNode);
                 instructionFlag ++;
+
             }
 
             if(temp[2] == 'h')
             {
-                firstScan->DC = firstScan->DC + (2 * (curNode->nodeSize - 2));
+                
+                
                 tempNode = wordParser(temp);
+
                 tempNode = tempNode->nextNode;
-                intTemp = (int*)malloc((tempNode->nodeSize - 1) * sizeof(int));
                 while(tempNode->nextNode != NULL)
                 {
                     intTemp[z] = atoi(tempNode->val);
                     tempNode = tempNode->nextNode;
+
                     z++;
                 }
 
-                doublePointer = freeDInstructions('h', intTemp, tempNode->nodeSize - 1);
+                firstScan->DC = firstScan->DC + (2 * (z));
 
-                for (i = 0; i < tempNode->nodeSize - 1; i++)
+                doublePointer = malloc(z + 1 * sizeof(int*));
+                
+                doublePointer = freeDInstructions('h', intTemp, z);
+
+
+                for (i = 1; i < z ; i++)
                 {
                     firstScan->currentLine->val = doublePointer[i];
+                    firstScan->currentLine->nextNode = createIntNode();
                     firstScan->currentLine = firstScan->currentLine->nextNode;
                     firstScan->lineCounter++;
                     firstScan->IC++;
                 }
                     
-                free(intTemp);
                 free(doublePointer);
                 free(tempNode);
                 instructionFlag ++;
+
             }
 
             if(temp[2] == 's')
@@ -276,8 +296,7 @@ FirstScan * doScan(char * asFile, int strLen)
                         firstScan->DC = firstScan->DC + (curNode->nodeSize - 2);
                     }
                 }
-            }
-            free(temp);
+            }            
         }
 
         else
@@ -286,26 +305,41 @@ FirstScan * doScan(char * asFile, int strLen)
             {
                 symbolFlag = 1;
             }
-        
-            tempNode = wordParser(curNode->val);
-            tempAction = getAction(tempNode->val);
-            if(temp == 0)
-            {
-                printf("There is no %s action, in row %d", tempNode->val, firstScan->lineCounter);// checks action validity 
-                firstScan->currentLine = firstScan->currentLine->nextNode;
-                firstScan->lineCounter++;
-                firstScan->IC += 4;
 
+            strcpy(temp, curNode->val);
+        
+            tempNode = wordParser(temp);
+
+            if(symbolFlag == 1)
+            {
+                strcpy(temp, tempNode->nextNode->val);
+                tempAction = getAction(temp);
             }
 
             else
+            {
+                strcpy(temp, tempNode->val);
+                tempAction = getAction(temp);
+            }
+
+            
+            if(tempAction == NULL)
+            {
+                printf("There is no %s action, in row %d\n", tempNode->val, firstScan->lineCounter); // checks action validity 
+                firstScan->currentLine = createIntNode();
+                firstScan->currentLine = firstScan->currentLine->nextNode;
+                firstScan->lineCounter++;
+                firstScan->IC += 4;
+            }
+
+            else if(tempNode != NULL)
             {
                 if(symbolFlag == 1)
                 {
                     if(firstSymbol == NULL)
                     {
                         firstSymbol = createSymbol();
-                        addSymbole(curWord->val, firstScan->IC, "data", firstSymbol);
+                        addSymbole(tempNode->val, firstScan->IC, "data", firstSymbol);
                         lastSymbol = firstSymbol;
                         curSymbol = lastSymbol;
                     }
@@ -313,41 +347,53 @@ FirstScan * doScan(char * asFile, int strLen)
                     else
                     {
                         curSymbol = createSymbol();
-                        addSymbole(curWord->val, firstScan->IC, "data", curSymbol);
+                        addSymbole(tempNode->val, firstScan->IC, "data", curSymbol);
                         lastSymbol->nextNode = curSymbol;
                         lastSymbol = curSymbol;
                         firstScan->DC = firstScan->DC + (curNode->nodeSize - 2);
-                    }       
+                    }   
+
+                }
+                doubleCharP = malloc(sizeof(char*)  * curNode->nodeSize);
+
+                if(doubleCharP == NULL)
+                {
+                    printf("Memory problem in line %d", firstScan->lineCounter);
                 }
 
-                doubleCharP = malloc(sizeof(char*)  * curNode->nodeSize);
-                for (i = 0; i < tempNode->nodeSize; i++)
+
+                i = 0;
+                while (tempNode->val != NULL)
                 {
-                    printf("this is the problem, line 316 because i: %d\n", i);
                     doubleCharP[i] = (char*)malloc(sizeof(char) * MAX_INT);
                     doubleCharP[i] = tempNode->val;
                     tempNode = tempNode->nextNode;
+                    i++;
                 }
-                
-                
+                                
                 if(tempAction->actionType == 'R')
                 {
                     // verify all are names of rgs ***********************
                     if(tempAction->numOfop == 3)
                     {
                         firstScan->currentLine->val = codeAction(tempAction,atoi(doubleCharP[symbolFlag + 1]), atoi(doubleCharP[symbolFlag + 2]), atoi(doubleCharP[symbolFlag + 3]), 0, 0 , 0);
+                        firstScan->currentLine->nextNode = createIntNode();
                         firstScan->currentLine = firstScan->currentLine->nextNode;
                         firstScan->lineCounter++;
                         firstScan->IC += 4;
                     }
 
+
+
                     if(tempAction->numOfop == 2)
                     {
                         firstScan->currentLine->val = codeAction(tempAction,atoi(doubleCharP[symbolFlag + 1]), 0, atoi(doubleCharP[symbolFlag + 2]), 0, 0 , 0);
+                        firstScan->currentLine->nextNode = createIntNode();
                         firstScan->currentLine = firstScan->currentLine->nextNode;
                         firstScan->lineCounter++;
                         firstScan->IC += 4;
                     }
+
                 }
 
                 if(tempAction->actionType == 'I')
@@ -355,6 +401,7 @@ FirstScan * doScan(char * asFile, int strLen)
                     if(tempAction->opcode < 15 && tempAction->opcode > 9)
                     {
                         firstScan->currentLine->val = codeAction(tempAction,atoi(doubleCharP[symbolFlag + 1]), atoi(doubleCharP[symbolFlag + 3]), 0,atoi(doubleCharP[symbolFlag + 2]), 0, 0);
+                        firstScan->currentLine->nextNode = createIntNode();
                         firstScan->currentLine = firstScan->currentLine->nextNode;
                         firstScan->lineCounter++;
                         firstScan->IC += 4;
@@ -371,6 +418,7 @@ FirstScan * doScan(char * asFile, int strLen)
                     else
                     {
                         firstScan->currentLine->val = codeAction(tempAction,atoi(doubleCharP[symbolFlag + 1]), atoi(doubleCharP[symbolFlag + 3]), 0,atoi(doubleCharP[symbolFlag + 2]), 0, 0);
+                        firstScan->currentLine->nextNode = createIntNode();
                         firstScan->currentLine = firstScan->currentLine->nextNode;
                         firstScan->lineCounter++;
                         firstScan->IC += 4;
@@ -382,6 +430,7 @@ FirstScan * doScan(char * asFile, int strLen)
                     if(isAlphabet(doubleCharP[symbolFlag + 1][0]) == 1)
                     {
                         firstScan->currentLine->labelIsOp = true;
+                        firstScan->currentLine->nextNode = createIntNode();
                         firstScan->currentLine = firstScan->currentLine->nextNode;
                         firstScan->lineCounter++;
                         firstScan->IC += 4;
@@ -389,18 +438,19 @@ FirstScan * doScan(char * asFile, int strLen)
 
                     else
                     {
-                        //int * codeAction(Action * action, int rs, int rt, int rd, int imme, int reg, int add)
                         if(tempAction->opcode == 30) // jmp
                         {
                             firstScan->currentLine->val = codeAction(tempAction, 0, 0, 0, 0, 0, atoi(doubleCharP[symbolFlag + 1]));
-                            firstScan->currentLine = firstScan->currentLine->nextNode;
-                            firstScan->lineCounter++;
-                            firstScan->IC += 4;
+                            firstScan->currentLine->nextNode = createIntNode();
+                        firstScan->currentLine = firstScan->currentLine->nextNode;
+                        firstScan->lineCounter++;
+                        firstScan->IC += 4;
                         }
 
                         else if(tempAction->opcode == 63)
                         {
                             firstScan->currentLine->val = codeAction(tempAction, 0, 0, 0, 0, 0, 0);
+                            firstScan->currentLine->nextNode = createIntNode();
                             firstScan->currentLine = firstScan->currentLine->nextNode;
                             firstScan->lineCounter++;
                             firstScan->IC += 4;
@@ -408,9 +458,19 @@ FirstScan * doScan(char * asFile, int strLen)
                     }  
                 }
             }
-        }
-    }
 
+            else
+            {
+                printf("unexcpected error\n");
+                exit(1);
+            }
+        }
+
+        curNode = curNode->nextNode;
+        symbolFlag = 0;
+
+    }
+    
     return firstScan;
 }
 
