@@ -9,59 +9,23 @@ int  ** freeDInstructions(char instructionType,int * intstructionParms, int parm
 {
     int ** instructionpPointer;
     int * tempBin;
-    int i = 0, k = 0;
+    int i = 0, k = 0, w = 0;
     instructionpPointer = malloc(sizeof(int *) * parmsSize);
 
-    if(instructionType == 'b')
-    {
-        int k = 0, i = 0;
-        for(k = 0; k < parmsSize; k++)
+    for(k = 0; k < parmsSize ; k++)
         {
-            instructionpPointer[k] = (int*)malloc(sizeof(byte));
+            instructionpPointer[k] = (int*)malloc(32 * sizeof(int));
             tempBin = (int*)malloc(32 * sizeof(int));
             tempBin = convDectoBin(intstructionParms[k],tempBin);
+
+            w = 31;
             for (i = 0; i < 32; i++)
             {
                 instructionpPointer[k][i] = tempBin[i];
+                w--;
             }
-
             free(tempBin);
         }
-    }
-
-    if(instructionType == 'w')
-    {
-        for(k = 0; k < parmsSize; k++)
-        {
-            instructionpPointer[k] = (int*)malloc(sizeof(4 * byte));
-            tempBin = (int*)malloc(32 * sizeof(int));
-            tempBin = convDectoBin(intstructionParms[k],tempBin);
-            for (i = 0; i < 32; i++)
-            {
-                instructionpPointer[k][i] = tempBin[i];
-            }
-
-            free(tempBin);
-        }
-        
-    }
-
-    if(instructionType == 'h')
-    {
-        for(k = 0; k < parmsSize; k++)
-        {
-            instructionpPointer[k] = (int*)malloc(sizeof(2 * byte));
-            tempBin = (int*)malloc(32 * sizeof(int));
-            tempBin = convDectoBin(intstructionParms[k],tempBin);
-            for (i = 0; i < 32; i++)
-            {
-                instructionpPointer[k][i] = tempBin[i];
-            }
-
-            free(tempBin);
-        }
-        
-    }
 
     return instructionpPointer;
 }
