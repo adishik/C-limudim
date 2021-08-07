@@ -8,7 +8,7 @@ IntNode * createIntNode()
 {
     IntNode * node = (IntNode*)malloc(sizeof(IntNode));
     node->val = (int*)malloc(MAX_LABEL_LEN * sizeof(int));
-    node->nextNode = (IntNode*)malloc(sizeof(IntNode));
+    node->nextNode = NULL;
     node->nodeSize = 0;
     node->labelIsOp = false; 
 
