@@ -9,8 +9,8 @@
 TextNode * createNode(int strLen)
 {
     TextNode * node = (TextNode*)malloc(sizeof(TextNode));
-    node->val = NULL;//(char*)malloc(strLen * sizeof(char));
-    node->nextNode = (TextNode*)malloc(sizeof(TextNode));
+    node->val = NULL;
+    node->nextNode = NULL;
     node->nodeSize = 0;
 
     return node;
@@ -44,12 +44,16 @@ TextNode * wordParser(char * line)
 {
     TextNode * par;
     TextNode * firstNode;
-    par = createNode(MAX_LABEL_LEN);
-    firstNode = par;
+    firstNode = (TextNode*)malloc(sizeof(TextNode));
+    par = firstNode;
     par->val = strtok(line, " :,$");
+
     if(par->val == NULL)
     {
         printf("NULL\n");
+       
+
+        return 0;
     }
     par->nodeSize++;
    
@@ -63,8 +67,7 @@ TextNode * wordParser(char * line)
         par->val = strtok(NULL, " :,$");
     }
 
-
-
+  
     return firstNode;
 }
 
