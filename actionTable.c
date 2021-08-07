@@ -16,6 +16,7 @@ int * convDectoBin(int decimalNumber, int  * binaryNumber)
         isNegative = true;
         decimalNumber =  abs(decimalNumber);
     }
+
     while(quotient!=0){
 
         binaryNumber[i++]= quotient % 2;
@@ -24,7 +25,7 @@ int * convDectoBin(int decimalNumber, int  * binaryNumber)
 
     }
 
-    if(isNegative)
+    if(isNegative == true)
     {
         for (i = 0; i < 31; i++)
         {
@@ -53,7 +54,6 @@ int * convDectoBin(int decimalNumber, int  * binaryNumber)
             }
         }
     }
-
     return binaryNumber;
 }
 
@@ -97,6 +97,7 @@ Action  * getAction(char * actionName)
         if(strcmp(actionName, actionTable[k].actionName) == 0)
         {
             
+            
             Action  * returnAdrees = (Action*)malloc(sizeof(Action));
             returnAdrees->actionName = actionTable[k].actionName;
             returnAdrees->actionType = actionTable[k].actionType;
@@ -104,13 +105,12 @@ Action  * getAction(char * actionName)
             returnAdrees->numOfop= actionTable[k].numOfop;
             returnAdrees->opcode = actionTable[k].opcode;
 
-            printf("%s\n", returnAdrees->actionName);
 
             return returnAdrees;
         }
     }
 
-    return 0;
+    return NULL;
 
 }
 int * codeAction(Action * action, int rs, int rt, int rd, int imme, int reg, int add)
@@ -266,9 +266,7 @@ int * codeAction(Action * action, int rs, int rt, int rd, int imme, int reg, int
                 binLine[y] = tempAdd[y];
             }
         }
-
-
-
+        
         return binLine;
     }
 
