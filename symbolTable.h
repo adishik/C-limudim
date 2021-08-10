@@ -14,4 +14,4 @@ struct _SymbolNode
 typedef struct _SymbolNode SymbolNode;
 
 SymbolNode * createSymbol();
-void addSymbole(char * symbolName, int val, char * att, SymbolNode * node);
+SymbolNode * addSymbole(char * symbolName, int val, char * att, SymbolNode * node);
