@@ -6,18 +6,21 @@ SymbolNode * createSymbol()
 {
     SymbolNode * node = (SymbolNode*)malloc(sizeof(SymbolNode));
     node->symbole = (char*)malloc(MAX_LABEL_LEN * sizeof(char));
-    node->val = 0;
+    node->val = -1;
     node->att = (char*)malloc(MAX_LABEL_LEN * sizeof(char));
-    node->nextNode = (SymbolNode*)malloc(sizeof(SymbolNode));
+    node->nextNode = NULL;
 
 
     return node;
 }
 
-void addSymbole(char * symbolName, int val, char * att, SymbolNode * node)
+SymbolNode * addSymbole(char * symbolName, int val, char * att, SymbolNode * node)
 {
-    strcpy(node->symbole, symbolName);
-    node->val = val;
-    strcat(node->att,att);
+    SymbolNode * node2 = createSymbol();
+    node2->symbole = symbolName;
+    node2->val = val;
+    strcat(node2->att,att);
+
+    return node2;
 }
 
