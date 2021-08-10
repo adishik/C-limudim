@@ -6,8 +6,8 @@ all: final
 linuxClean:
 	rm -rf *.o
 	rm cluster
-final:  actionTable.o instructions.o intNode.o parser.o symbolTable.o firstScan.o main.o
-	gcc  actionTable.o instructions.o intNode.o parser.o symbolTable.o firstScan.o main.o -o final $(LIBS)
+final:  actionTable.o instructions.o intNode.o parser.o symbolTable.o firstScan.o secondScan.o main.o
+	gcc  actionTable.o instructions.o intNode.o parser.o symbolTable.o firstScan.o secondScan.o main.o -o final $(LIBS)
 
 actionTable: actionTable.o
 	gcc actionTable.o -o actionTable $(LIBS)
@@ -37,3 +37,6 @@ main: main.o
 	gcc main.o -o main $(LIBS)
 symbolTable.o: main.c
 	gcc $(FLAGS) -c main.c
+secondScan: secondScan.o
+	gcc secondScan.o -o secondScan $(LIBS)
+secondScan.o: secondScan.c
