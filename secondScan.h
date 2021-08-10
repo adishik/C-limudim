@@ -1,9 +1,9 @@
 #include "firstScan.h"
 
 #ifndef __SECOND_SCAN__
-#def __SECOND_SCAN__
+#define __SECOND_SCAN__
 
 
-void * doSecondScan(FirstScan firstScan);
+FirstScan * doSecondScan(FirstScan  * firstScan, char * asFile, int strLen);
 
 #endif
