@@ -11,6 +11,7 @@ IntNode * createIntNode()
     node->nextNode = NULL;
     node->nodeSize = 0;
     node->labelIsOp = false; 
+    node->lineIC = 0;
 
     return node;
 }
