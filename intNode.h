@@ -12,6 +12,7 @@ struct _IntNode
     struct _IntNode * nextNode;
     int nodeSize;
     int labelIsOp;
+    int lineIC;
 };
 
 typedef struct _IntNode IntNode;
