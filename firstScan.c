@@ -170,6 +170,7 @@ FirstScan * doScan(char * asFile, int strLen)
                     firstScan->currentLine->nextNode = createIntNode();
                     firstScan->currentLine = firstScan->currentLine->nextNode;
                     firstScan->lineCounter++;
+                    firstScan->currentLine->lineIC = firstScan->IC;
                     firstScan->IC++;
                 }
                     
@@ -205,6 +206,7 @@ FirstScan * doScan(char * asFile, int strLen)
                     firstScan->currentLine->nextNode = createIntNode();
                     firstScan->currentLine = firstScan->currentLine->nextNode;
                     firstScan->lineCounter++;
+                    firstScan->currentLine->lineIC = firstScan->IC;
                     firstScan->IC++;
                 }
                     
@@ -219,17 +221,15 @@ FirstScan * doScan(char * asFile, int strLen)
                 
                 
                 tempNode = wordParser(temp);
-
                 tempNode = tempNode->nextNode;
-                while(tempNode->nextNode != NULL)
+                while(tempNode->val != NULL)
                 {
                     intTemp[z] = atoi(tempNode->val);
                     tempNode = tempNode->nextNode;
-
                     z++;
                 }
 
-                firstScan->DC = firstScan->DC + (2 * (z));
+                firstScan->DC = firstScan->DC + (4 * (z));
 
                 doublePointer = malloc(z + 1 * sizeof(int*));
                 
@@ -242,6 +242,7 @@ FirstScan * doScan(char * asFile, int strLen)
                     firstScan->currentLine->nextNode = createIntNode();
                     firstScan->currentLine = firstScan->currentLine->nextNode;
                     firstScan->lineCounter++;
+                    firstScan->currentLine->lineIC = firstScan->IC;
                     firstScan->IC++;
                 }
                     
@@ -255,16 +256,19 @@ FirstScan * doScan(char * asFile, int strLen)
             {
                 tempNode = wordParser(temp);
                 firstScan->DC = firstScan->DC + (strlen(tempNode->val) + 1);
-                tempInt = malloc(tempNode->nodeSize *  sizeof(int*));
+                tempInt = malloc(MAX_LABEL_LEN *  sizeof(int*));
                 tempInt = freeAsInstruction(temp);
-                for (i = 1; i < tempNode->nodeSize; i++)
+                for (i = 1; i < strlen(tempNode->nextNode->val); i++)
                 {
                     firstScan->currentLine->val = tempInt[i];
                     firstScan->currentLine = firstScan->currentLine->nextNode;
                     firstScan->lineCounter++;
+                    firstScan->currentLine->lineIC = firstScan->IC;
                     firstScan->IC++;
                 }
                 instructionFlag++;
+
+                z  = strlen(tempNode->nextNode->val) - 1;
             }
 
             if(symbolFlag == 1)
@@ -289,7 +293,7 @@ FirstScan * doScan(char * asFile, int strLen)
                         strcpy(firstScan->currentSymbol->symbole,curWord->val);
                         firstScan->currentSymbol->val = firstScan->IC;
                         strcat(firstScan->currentSymbol->att,"data");
-                        firstScan->DC = firstScan->DC + (curNode->nodeSize - 2);
+                        firstScan->DC = firstScan->DC + (z);
                     }   
                 }
 
@@ -312,7 +316,7 @@ FirstScan * doScan(char * asFile, int strLen)
                         strcpy(firstScan->currentSymbol->symbole,curWord->val);
                         firstScan->currentSymbol->val = 0;
                         strcat(firstScan->currentSymbol->att,"external");
-                        firstScan->DC = firstScan->DC + (curNode->nodeSize - 2);
+                        firstScan->DC = firstScan->DC + (z);
                     }   
                 }
             }            
@@ -336,50 +340,13 @@ FirstScan * doScan(char * asFile, int strLen)
                 firstScan->currentLine = createIntNode();
                 firstScan->currentLine = firstScan->currentLine->nextNode;
                 firstScan->lineCounter++;
+                firstScan->currentLine->lineIC = firstScan->IC;
                 firstScan->IC += 4;
             }
 
             else if(tempNode != NULL)
             {
-                if(symbolFlag == 1)
-                {
-
-
-                    if(firstScan->firstSymbol == NULL)
-                    {
-                        
-                        firstScan->firstSymbol = createSymbol();
-                        strcpy(firstScan->firstSymbol->symbole,tempNode->val);
-                        firstScan->firstSymbol->val = firstScan->IC;
-                        strcat(firstScan->firstSymbol->att,"data");
-                        firstScan->currentSymbol = firstScan->firstSymbol;
-                    }
-                        
-                    else
-                    {
-                        firstScan->currentSymbol->nextNode = createSymbol();
-                        firstScan->currentSymbol = firstScan->currentSymbol->nextNode;
-                        strcpy(firstScan->currentSymbol->symbole,tempNode->val);
-                        firstScan->currentSymbol->val = firstScan->IC;
-                        strcat(firstScan->currentSymbol->att,"data");
-                        firstScan->DC = firstScan->DC + (curNode->nodeSize - 2);
-                    }   
-
-                }
-                 if(symbolFlag == 1)
-                {
-
-                    strcpy(temp, tempNode->nextNode->val);
-                    tempAction = getAction(temp);
-                }
-
-                else
-                {
-                    strcpy(temp, tempNode->val);
-                    tempAction = getAction(temp);
-                }
-
-                doubleCharP = malloc(sizeof(char*)  * curNode->nodeSize);
+                doubleCharP = malloc(sizeof(char*)  * 32);
 
                 if(doubleCharP == NULL)
                 {
@@ -395,7 +362,37 @@ FirstScan * doScan(char * asFile, int strLen)
                     tempNode = tempNode->nextNode;
                     i++;
                 }
-                                
+
+                if(symbolFlag == 1)
+                {
+                    
+
+                    if(firstScan->firstSymbol == NULL)
+                    {
+                        
+                        firstScan->firstSymbol = createSymbol();
+                        strcpy(firstScan->firstSymbol->symbole,doubleCharP[0]);
+                        firstScan->firstSymbol->val = firstScan->IC;
+                        strcat(firstScan->firstSymbol->att,"data");
+                        firstScan->currentSymbol = firstScan->firstSymbol;
+                    }
+                        
+                    else
+                    {
+                        firstScan->currentSymbol->nextNode = createSymbol();
+                        firstScan->currentSymbol = firstScan->currentSymbol->nextNode;
+                        strcpy(firstScan->currentSymbol->symbole,doubleCharP[0]);
+                        firstScan->currentSymbol->val = firstScan->IC;
+                        strcat(firstScan->currentSymbol->att,"data");
+                        firstScan->DC = firstScan->DC + (i - 2);
+                    }   
+
+                }
+
+                tempAction = getAction(doubleCharP[symbolFlag]);
+
+                
+                
                 if(tempAction->actionType == 'R')
                 {
                     // verify all are names of rgs ***********************
@@ -405,18 +402,25 @@ FirstScan * doScan(char * asFile, int strLen)
                         firstScan->currentLine->nextNode = createIntNode();
                         firstScan->currentLine = firstScan->currentLine->nextNode;
                         firstScan->lineCounter++;
+                        firstScan->currentLine->lineIC = firstScan->IC;
                         firstScan->IC += 4;
                     }
 
 
 
-                    if(tempAction->numOfop == 2)
+                    else if(tempAction->numOfop == 2)
                     {
                         firstScan->currentLine->val = codeAction(tempAction,atoi(doubleCharP[symbolFlag + 1]), 0, atoi(doubleCharP[symbolFlag + 2]), 0, 0 , 0);
                         firstScan->currentLine->nextNode = createIntNode();
                         firstScan->currentLine = firstScan->currentLine->nextNode;
                         firstScan->lineCounter++;
+                        firstScan->currentLine->lineIC = firstScan->IC;
                         firstScan->IC += 4;
+                    }
+
+                    else
+                    {
+                        printf("Unexpected error");
                     }
 
                 }
@@ -429,10 +433,11 @@ FirstScan * doScan(char * asFile, int strLen)
                         firstScan->currentLine->nextNode = createIntNode();
                         firstScan->currentLine = firstScan->currentLine->nextNode;
                         firstScan->lineCounter++;
+                        firstScan->currentLine->lineIC = firstScan->IC;
                         firstScan->IC += 4;
                     }
 
-                    if(tempAction->opcode < 19 && tempAction->opcode > 14)
+                    else if(tempAction->opcode < 19 && tempAction->opcode > 14)
                     {
                         if(isAlphabet(doubleCharP[symbolFlag + 3][0]) == 1)
                         {
@@ -441,6 +446,7 @@ FirstScan * doScan(char * asFile, int strLen)
                             firstScan->currentLine->nextNode = createIntNode();
                             firstScan->currentLine = firstScan->currentLine->nextNode;
                             firstScan->lineCounter++;
+                            firstScan->currentLine->lineIC = firstScan->IC;
                             firstScan->IC += 4;
                         }
                     }
@@ -451,6 +457,7 @@ FirstScan * doScan(char * asFile, int strLen)
                         firstScan->currentLine->nextNode = createIntNode();
                         firstScan->currentLine = firstScan->currentLine->nextNode;
                         firstScan->lineCounter++;
+                        firstScan->currentLine->lineIC = firstScan->IC;
                         firstScan->IC += 4;
                     }
                 }
@@ -465,6 +472,7 @@ FirstScan * doScan(char * asFile, int strLen)
                         firstScan->currentLine->nextNode = createIntNode();
                         firstScan->currentLine = firstScan->currentLine->nextNode;
                         firstScan->lineCounter++;
+                        firstScan->currentLine->lineIC = firstScan->IC;
                         firstScan->IC += 4;
                     }
 
@@ -477,6 +485,7 @@ FirstScan * doScan(char * asFile, int strLen)
                         firstScan->currentLine->nextNode = createIntNode();
                         firstScan->currentLine = firstScan->currentLine->nextNode;
                         firstScan->lineCounter++;
+                        firstScan->currentLine->lineIC = firstScan->IC;
                         firstScan->IC += 4;
 
                         }
@@ -487,6 +496,7 @@ FirstScan * doScan(char * asFile, int strLen)
                             firstScan->currentLine->nextNode = createIntNode();
                             firstScan->currentLine = firstScan->currentLine->nextNode;
                             firstScan->lineCounter++;
+                            firstScan->currentLine->lineIC = firstScan->IC;
                             firstScan->IC += 4;
                         }
                     }  
