@@ -10,20 +10,27 @@ FirstScan * doSecondScan(FirstScan * firstScan, char * asFile, int strLen)
     TextNode * curWord;
     TextNode * firstLine;
     Action * tempAction;
+    int foundEntery = 0;
     int i = 0;
     int symbolFlag = 0;
     char  * temp;
+    int lineCounter = 0;
+    int labelLoc = 0;
+    int labelFound = 0;
     tempNode = createNode(strLen);
     firstScan->currentLine = firstScan->firstLine;
     curSym = createSymbol();
     curWord = createNode(MAX_LEN_LINE);
-    temp = (char*)malloc(strLen *  sizeof(char));
+    temp = (char*)malloc((strLen + 1) *  sizeof(char));
     tempAction = (Action*)malloc(sizeof(Action));
-    int lineCounter = 0;
-    int labelLoc = 0;
-    int labelFound = 0;
+    
+
+
+
 
     firstLine = createNode(strLen);
+
+
     tempNode = lineParser(asFile, strLen);
     firstLine = tempNode;
 
@@ -35,7 +42,7 @@ FirstScan * doSecondScan(FirstScan * firstScan, char * asFile, int strLen)
         return 0;
     }
     
-    while(firstScan->currentLine->nextNode != NULL)
+    while(firstScan->currentLine != NULL)
     {
         while(checkEmpty(tempNode->val) == 1)
         {
@@ -62,6 +69,8 @@ FirstScan * doSecondScan(FirstScan * firstScan, char * asFile, int strLen)
                 i++;
             }
 
+             
+
             if(isLabel(tempNode->val) == 1)
             {
                 symbolFlag = 1;
@@ -70,8 +79,12 @@ FirstScan * doSecondScan(FirstScan * firstScan, char * asFile, int strLen)
             doubleCharP = malloc(sizeof(char*) * MAX_LEN_LINE);
 
             strcpy(temp, tempNode->val);
+
+
             curWord = wordParser(temp);
 
+
+           
             i = 0;
 
             while (curWord->val != NULL)
@@ -88,7 +101,7 @@ FirstScan * doSecondScan(FirstScan * firstScan, char * asFile, int strLen)
             tempAction = getAction(doubleCharP[symbolFlag]);
 
             
-            while(firstScan->currentSymbol->nextNode != NULL)
+            while(firstScan->currentSymbol != NULL)
             {
                 if(tempAction->actionType == 'J')
                 {
@@ -124,6 +137,7 @@ FirstScan * doSecondScan(FirstScan * firstScan, char * asFile, int strLen)
                         {
                             firstScan->currentLine->val = codeAction(tempAction, 0, 0, 0, 0 , 0, 0);
                         }
+
                     }
 
                     else
@@ -141,7 +155,6 @@ FirstScan * doSecondScan(FirstScan * firstScan, char * asFile, int strLen)
             }
         }
 
-
         firstScan->currentLine = firstScan->currentLine->nextNode;
         symbolFlag = 0;
         lineCounter++;
@@ -149,6 +162,66 @@ FirstScan * doSecondScan(FirstScan * firstScan, char * asFile, int strLen)
         labelLoc = 0;
         labelFound = 0;
     }
+    
+
+    tempNode = firstLine;
+
+    firstScan->currentSymbol = firstScan->firstSymbol;
+    lineCounter = 0;
+
+    while (tempNode->nextNode != NULL)
+    {
+        if(strchr(tempNode->val, '.') != NULL)
+        {
+            if(isLabel(tempNode->val) == 1)
+            {
+                symbolFlag = 1;
+            }
+
+            doubleCharP = malloc(sizeof(char*) * MAX_LEN_LINE);
+
+            strcpy(temp, tempNode->val);
+
+            curWord = wordParser(temp);
+           
+            i = 0;
+
+            while (curWord->val != NULL)
+            {
+                doubleCharP[i] = (char*)malloc(sizeof(char) * INT_SIZE);
+                doubleCharP[i] = curWord->val;
+                curWord = curWord->nextNode;
+                i++;
+            }
+
+            if(strcmp(doubleCharP[symbolFlag], ".entry") == 0)
+            {
+                while(firstScan->currentSymbol->nextNode != NULL)
+                {
+                    if(strcmp(doubleCharP[symbolFlag + 1], firstScan->currentSymbol->symbole) == 0)
+                    {
+                        strcat(firstScan->currentSymbol->att, "entry");
+                        foundEntery = 1;
+                    }
+
+                    firstScan->currentSymbol = firstScan->currentSymbol->nextNode;
+
+                }
+
+                if(foundEntery == 0)
+                {
+                    printf("error in line %d symbol %s doesn't exsist and assign to entry\n ", lineCounter, doubleCharP[symbolFlag + 1]);
+                }
+            }
+
+            foundEntery = 0;
+        }
+
+        tempNode = tempNode->nextNode;
+    }
+    
+
+
 
     free(temp);
     free(firstLine);
