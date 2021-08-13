@@ -16,7 +16,7 @@ TextNode * createNode(int strLen)
     return node;
 }
 
-TextNode * lineParser(char * txt, int strLen)
+TextNode * lineParser(char * txt, int strLen) /* parser according to \n */
 {
     TextNode * par;
     TextNode * firstNode;
@@ -40,7 +40,7 @@ TextNode * lineParser(char * txt, int strLen)
     return firstNode;
 }
 
-TextNode * wordParser(char * line)
+TextNode * wordParser(char * line) /* parser according to :, $ */
 {
     TextNode * par;
     TextNode * firstNode;
