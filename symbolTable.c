@@ -24,3 +24,19 @@ SymbolNode * addSymbole(char * symbolName, int val, char * att, SymbolNode * nod
     return node2;
 }
 
+int checkIfSymbolExsits(SymbolNode * node, char * symbol)
+{
+    while(node!= NULL)
+    {
+        if(strcmp(node->symbole, symbol) == 0)
+        {
+         
+            return 1;
+        }
+
+        node = node->nextNode;
+    }
+
+    return 0;
+}
+
