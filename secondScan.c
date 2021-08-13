@@ -2,6 +2,8 @@
 #define MAX_LEN_LINE 60 
 #define INT_SIZE 32
 
+/* second scan, gets the result of the first*/
+
 FirstScan * doSecondScan(FirstScan * firstScan, char * asFile, int strLen)
 {  
     TextNode * tempNode;
@@ -11,6 +13,7 @@ FirstScan * doSecondScan(FirstScan * firstScan, char * asFile, int strLen)
     TextNode * firstLine;
     Action * tempAction;
     int foundEntery = 0;
+    int errorCounter = 0;
     int i = 0;
     int symbolFlag = 0;
     char  * temp;
@@ -49,7 +52,6 @@ FirstScan * doSecondScan(FirstScan * firstScan, char * asFile, int strLen)
             if(firstScan->currentLine->nextNode == NULL)
             {
                 break;
-                //FILEOUTPUT>>>>>>>>
             }
 
             else
@@ -59,7 +61,8 @@ FirstScan * doSecondScan(FirstScan * firstScan, char * asFile, int strLen)
         }
        
 
-        if(firstScan->currentLine->labelIsOp != 0)
+        if(firstScan->currentLine->labelIsOp != 0) /* this was set by the first scan*/
+                                                    /* it informs that we have a label as oparnd in this line*/
         {
             i = 0;
 
@@ -105,12 +108,12 @@ FirstScan * doSecondScan(FirstScan * firstScan, char * asFile, int strLen)
             {
                 if(tempAction->actionType == 'J')
                 {
-                    labelLoc = symbolFlag + 1;
+                    labelLoc = symbolFlag + 1; /* label location*/
                 }
 
                 else
                 {
-                    labelLoc = symbolFlag + 3;
+                    labelLoc = symbolFlag + 3;/* label location*/
                 }
                 
                 if(strcmp(doubleCharP[labelLoc], firstScan->currentSymbol->symbole) == 0)
@@ -143,6 +146,7 @@ FirstScan * doSecondScan(FirstScan * firstScan, char * asFile, int strLen)
                     else
                     {
                         printf("Unexpected Error");
+                        errorCounter++;
                     }
                 }
 
@@ -152,6 +156,7 @@ FirstScan * doSecondScan(FirstScan * firstScan, char * asFile, int strLen)
             if(labelFound == 0)
             {
                 printf("error in line %d, Symbool %s is not defined\n", lineCounter, doubleCharP[labelLoc]);
+                errorCounter++;
             }
         }
 
@@ -171,7 +176,7 @@ FirstScan * doSecondScan(FirstScan * firstScan, char * asFile, int strLen)
 
     while (tempNode->nextNode != NULL)
     {
-        if(strchr(tempNode->val, '.') != NULL)
+        if(strchr(tempNode->val, '.') != NULL) /* instruction*/
         {
             if(isLabel(tempNode->val) == 1)
             {
@@ -194,10 +199,16 @@ FirstScan * doSecondScan(FirstScan * firstScan, char * asFile, int strLen)
                 i++;
             }
 
-            if(strcmp(doubleCharP[symbolFlag], ".entry") == 0)
+
+            if(strcmp(doubleCharP[symbolFlag], ".entery") == 0)
             {
+
+                firstScan->currentSymbol = firstScan->firstSymbol;
+
                 while(firstScan->currentSymbol->nextNode != NULL)
                 {
+
+
                     if(strcmp(doubleCharP[symbolFlag + 1], firstScan->currentSymbol->symbole) == 0)
                     {
                         strcat(firstScan->currentSymbol->att, "entry");
@@ -211,6 +222,7 @@ FirstScan * doSecondScan(FirstScan * firstScan, char * asFile, int strLen)
                 if(foundEntery == 0)
                 {
                     printf("error in line %d symbol %s doesn't exsist and assign to entry\n ", lineCounter, doubleCharP[symbolFlag + 1]);
+                    errorCounter++;
                 }
             }
 
@@ -218,6 +230,7 @@ FirstScan * doSecondScan(FirstScan * firstScan, char * asFile, int strLen)
         }
 
         tempNode = tempNode->nextNode;
+        lineCounter++;
     }
     
 
@@ -230,9 +243,12 @@ FirstScan * doSecondScan(FirstScan * firstScan, char * asFile, int strLen)
 
 
 
-
-
-
+    if(errorCounter > 0)
+    {
+        printf("exit with %d erros\n", errorCounter);
+        exit(2);
+    }
+    
     return firstScan;
 
 
