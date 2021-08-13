@@ -75,6 +75,48 @@ int isLabel(char * label)
     
 }
 
+int isSavedWord(char * label)
+{
+    if(strcmp(label, "add") == 0 ||
+        strcmp(label, "sub") == 0  ||
+        strcmp(label, "and") ==  0||
+        strcmp(label, "or") ==  0||
+        strcmp(label, "nor") ==  0||
+        strcmp(label, "move") ==  0||
+        strcmp(label, "mvhi") ==  0||
+        strcmp(label, "mvlo") ==  0||
+        strcmp(label, "addi") ==  0||
+        strcmp(label, "subi") ==  0||
+        strcmp(label, "andi") ==  0||
+        strcmp(label, "ori") ==  0||
+        strcmp(label, "nori") ==  0||
+        strcmp(label, "bne") ==  0||
+        strcmp(label, "beq") ==  0||
+        strcmp(label, "blt") ==  0||
+        strcmp(label, "bgt") ==  0||
+        strcmp(label, "lb") ==  0||
+        strcmp(label, "sb") ==  0||
+        strcmp(label, "lw") ==  0||
+        strcmp(label, "sw") ==  0||
+        strcmp(label, "lh") ==  0||
+        strcmp(label, "sh") ==  0||
+        strcmp(label, "jmp") ==  0||
+        strcmp(label, "la") ==  0||
+        strcmp(label, "call") ==  0||
+        strcmp(label, "stop") ==  0||
+        strcmp(label, "dh") ==  0||
+        strcmp(label, "dw") ==  0||
+        strcmp(label, "db") ==  0||
+        strcmp(label, "asciz") == 0 ||
+        strcmp(label, "extern") == 0 ||
+        strcmp(label, "entery") ==  0)
+        {
+            return 1;
+        }
+
+        return 0;
+}
+
 FirstScan * doScan(char * asFile, int strLen)
 {
     
@@ -82,18 +124,19 @@ FirstScan * doScan(char * asFile, int strLen)
     int symbolFlag = 0;
     int ** doublePointer;
     int instructionFlag = 0;
-    int z = 0, i = 0, y = 0;
+    int z = 0, i = 0;
     TextNode * firstNode;
     TextNode * curNode;
     TextNode * curWord;
     TextNode * tempNode;
     TextNode * tempNodeCopy;
     Action * tempAction;
-    int intTemp[MAX_LABEL_LEN];
+    Action * tempAction2;
 
+
+    int intTemp[MAX_LABEL_LEN];
+    int errorCounter = 0;
     SymbolNode * lastSymbol = NULL;
-    SymbolNode * firstSymbol = NULL;
-    SymbolNode * curSymbol = NULL;
     char ** doubleCharP;
     int ** tempInt;
     FirstScan * firstScan;
@@ -102,15 +145,16 @@ FirstScan * doScan(char * asFile, int strLen)
 
     firstScan = initScan();
     firstNode = createNode(MAX_LABEL_LEN);
-    firstNode = lineParser(asFile, strLen);
+    firstNode = lineParser(asFile, strLen); /*split the main text to lines*/
     curNode = firstNode;
     curWord = createNode(MAX_LABEL_LEN);
     tempNode = createNode(MAX_LABEL_LEN);
     tempNodeCopy = createNode(MAX_LABEL_LEN);
     tempAction = (Action*)malloc(sizeof(Action));
+    tempAction2 = (Action*)malloc(sizeof(Action));
 
 
-    while(curNode->val != NULL)
+    while(curNode->val != NULL) /* as long as thei are white labels we skip them*/
     {
        
         while(checkEmpty(curNode->val) == 1)
@@ -129,9 +173,9 @@ FirstScan * doScan(char * asFile, int strLen)
         strcpy(temp, curNode->val);
 
        
-        curWord = wordParser(temp);
+        curWord = wordParser(temp); /*split the line to word*/
 
-        if(isLabel(curNode->val))
+        if(isLabel(curNode->val)) 
         {
             symbolFlag = 1;
         }
@@ -140,13 +184,31 @@ FirstScan * doScan(char * asFile, int strLen)
         
         
         
-        if(strchr(temp,'.') != NULL)
+        if(strchr(temp,'.') != NULL) /*meaing there is an instruction here*/
         {
-            
+            /* the way i handle instructions, is first checking it's kind, than according to the spec I code it */
+           
             temp = strchr(curNode->val,'.');
-            //add syntax check********************
-        
-            if(temp[2] == 'b')
+
+            i = checkInstructionSyntax(temp, strlen(temp));
+
+            if(i != 0)
+            {
+                if(i == 1)
+                {
+                    printf("Syntax error in %d, to many commas\n", lineCounter);
+                    errorCounter++;
+                }
+
+                else
+                {
+                    printf("Error in line %d, Line is too long\n", lineCounter);
+                    errorCounter++;
+                }
+            }
+            i = 0;
+
+            if(temp[2] == 'b') /* .db */
             {         
                 tempNode = wordParser(temp);
                 tempNode = tempNode->nextNode;
@@ -180,7 +242,7 @@ FirstScan * doScan(char * asFile, int strLen)
 
             }
 
-            if(temp[2] == 'w')
+            else if(temp[2] == 'w') /* .dw */
             {
                 
                 
@@ -216,7 +278,7 @@ FirstScan * doScan(char * asFile, int strLen)
 
             }
 
-            if(temp[2] == 'h')
+            else if(temp[2] == 'h') /* .dh */
             {
                 
                 
@@ -252,7 +314,7 @@ FirstScan * doScan(char * asFile, int strLen)
 
             }
 
-            if(temp[2] == 's')
+            else if(temp[2] == 's') /* asicz */
             {
                 tempNode = wordParser(temp);
                 firstScan->DC = firstScan->DC + (strlen(tempNode->val) + 1);
@@ -271,14 +333,115 @@ FirstScan * doScan(char * asFile, int strLen)
                 z  = strlen(tempNode->nextNode->val) - 1;
             }
 
+            else if(temp[2]  == 'x') /* external */
+            {
+                doubleCharP = malloc(sizeof(char*)  * 32);
+
+                if(doubleCharP == NULL)
+                {
+                    printf("Memory problem in line %d", lineCounter);
+                }
+
+                tempNode = wordParser(temp);
+                i = 0;
+                while (tempNode->val != NULL)
+                {
+                    doubleCharP[i] = (char*)malloc(sizeof(char) * MAX_INT);
+                    doubleCharP[i] = tempNode->val;
+                    tempNode = tempNode->nextNode;
+                    i++;
+                }
+
+                if(firstScan->firstSymbol == NULL)
+                {
+                    
+                    firstScan->firstSymbol = createSymbol();
+                    if(isAlphabet( doubleCharP[1][0]) == 0)
+                    {
+                        printf("Error in line %d, illiogel Label", lineCounter);
+                        errorCounter++;
+                    }
+
+                    if(isSavedWord(doubleCharP[0]) == 1)
+                    {
+                        printf("Error in line %d, illiogel Label", lineCounter);
+                        errorCounter++;
+                    }
+                    strcpy(firstScan->firstSymbol->symbole,doubleCharP[1]);
+                    firstScan->firstSymbol->val = 0;
+                    strcat(firstScan->firstSymbol->att,"external");
+                    firstScan->currentSymbol = firstScan->firstSymbol;
+                }
+                    
+                else
+                {
+                    if(isAlphabet( doubleCharP[1][0]) == 0)
+                    {
+                        printf("Error in line %d, illiogel Label", lineCounter);
+                        errorCounter++;
+                    }
+
+
+                    if(isSavedWord(doubleCharP[1]) == 1)
+                    {
+                        printf("Error in line %d, illiogel Label", lineCounter);
+                        errorCounter++;
+                    }
+
+                    firstScan->currentSymbol->nextNode = createSymbol();
+                    firstScan->currentSymbol = firstScan->currentSymbol->nextNode;
+                    strcpy(firstScan->currentSymbol->symbole,doubleCharP[1]);
+                    firstScan->currentSymbol->val = 0;
+                    strcat(firstScan->currentSymbol->att,"external");
+                    firstScan->DC = firstScan->DC + (z);
+                }
+
+                firstScan->lineCounter++; 
+            }
+
+           
+
+            else if(temp[2]  == 'n') /* .entery */
+            {
+                firstScan->lineCounter++;
+            }
+
+            else /* if we didin;t find any of the above it means there is a problem with the instruction*/
+            {
+          
+                tempNode = wordParser(temp);
+                printf("Error in line %d, %s is not an instruction\n", lineCounter, tempNode->val);
+                errorCounter++;
+            }
+
             if(symbolFlag == 1)
             {
-                // verify symbol doesn't exsists *******************************************
+
+                lastSymbol = createSymbol();
+                lastSymbol = firstScan->firstSymbol;
+
+                if(checkIfSymbolExsits(lastSymbol, curWord->val) == 1) /*validates that the symbol doesn't exsits in the symbol table*/
+                {
+                    printf("Error in line %d Symbol %s already exsists\n", lineCounter, curWord->val);
+                    errorCounter++;
+                }
+                
                 if(instructionFlag == 1)
                 {
                     if(firstScan->firstSymbol == NULL)
                     {
-                        
+                        if(isAlphabet( curWord->val[0]) == 0)
+                        {
+                            printf("Error in line %d, illiogel Label", lineCounter);
+                            errorCounter++;
+                        }
+
+                        if(isSavedWord(curWord->val) == 1)
+                        {
+                            printf("Error in line %d, illiogel Label", lineCounter);
+                            errorCounter++;
+                        }
+
                         firstScan->firstSymbol = createSymbol();
                         strcpy(firstScan->firstSymbol->symbole,curWord->val);
                         firstScan->firstSymbol->val = firstScan->IC;
@@ -288,6 +451,18 @@ FirstScan * doScan(char * asFile, int strLen)
                         
                     else
                     {
+                        if(isAlphabet( curWord->val[0]) == 0)
+                        {
+                            printf("Error in line %d, illiogel Label", lineCounter);
+                            errorCounter++;
+                        }
+
+                        if(isSavedWord(curWord->val) == 1)
+                        {
+                            printf("Error in line %d, illiogel Label", lineCounter);
+                            errorCounter++;
+                        }
+
                         firstScan->currentSymbol->nextNode = createSymbol();
                         firstScan->currentSymbol = firstScan->currentSymbol->nextNode;
                         strcpy(firstScan->currentSymbol->symbole,curWord->val);
@@ -296,47 +471,23 @@ FirstScan * doScan(char * asFile, int strLen)
                         firstScan->DC = firstScan->DC + (z);
                     }   
                 }
-
-                else
-                {
-                    if(firstScan->firstSymbol == NULL)
-                    {
-                        
-                        firstScan->firstSymbol = createSymbol();
-                        strcpy(firstScan->firstSymbol->symbole,curWord->val);
-                        firstScan->firstSymbol->val = 0;
-                        strcat(firstScan->firstSymbol->att,"external");
-                        firstScan->currentSymbol = firstScan->firstSymbol;
-                    }
-                        
-                    else
-                    {
-                        firstScan->currentSymbol->nextNode = createSymbol();
-                        firstScan->currentSymbol = firstScan->currentSymbol->nextNode;
-                        strcpy(firstScan->currentSymbol->symbole,curWord->val);
-                        firstScan->currentSymbol->val = 0;
-                        strcat(firstScan->currentSymbol->att,"external");
-                        firstScan->DC = firstScan->DC + (z);
-                    }   
-                }
             }            
         }
 
-        else
+        else /*  Meaning this line is action and not instruction*/
         {
             if(isLabel(curNode->val))
             {
                 symbolFlag = 1;
             }
 
-            //temp = (char*)malloc(sizeof(strLen));
             strcpy(temp, curNode->val);
         
             tempNode = wordParser(temp);
             
             if(tempAction == NULL)
             {
-                printf("There is no %s action, in row %d\n", tempNode->val, lineCounter); // checks action validity 
+                printf("There is no %s action, in row %d\n", tempNode->val, lineCounter);
                 firstScan->currentLine = createIntNode();
                 firstScan->currentLine = firstScan->currentLine->nextNode;
                 firstScan->lineCounter++;
@@ -355,6 +506,9 @@ FirstScan * doScan(char * asFile, int strLen)
 
 
                 i = 0;
+                tempNodeCopy = createNode(MAX_LABEL_LEN);
+                tempNodeCopy = tempNode;
+
                 while (tempNode->val != NULL)
                 {
                     doubleCharP[i] = (char*)malloc(sizeof(char) * MAX_INT);
@@ -366,9 +520,28 @@ FirstScan * doScan(char * asFile, int strLen)
                 if(symbolFlag == 1)
                 {
                     
+                    lastSymbol = createSymbol();
+                    lastSymbol = firstScan->firstSymbol;
+
+                    if(checkIfSymbolExsits(lastSymbol, doubleCharP[0]) == 1)
+                    {
+                        printf("Error in line %d Symbol %s already exsists\n", lineCounter, doubleCharP[0]);
+                        errorCounter++;
+                    }
 
                     if(firstScan->firstSymbol == NULL)
                     {
+                        if(isAlphabet( doubleCharP[0][0]) == 0)
+                    {
+                        printf("Error in line %d, illiogel Label", lineCounter);
+                        errorCounter++;
+                    }
+
+                    if(isSavedWord(doubleCharP[0]) == 1)
+                    {
+                        printf("Error in line %d, illiogel Label", lineCounter);
+                        errorCounter++;
+                    }
                         
                         firstScan->firstSymbol = createSymbol();
                         strcpy(firstScan->firstSymbol->symbole,doubleCharP[0]);
@@ -379,6 +552,18 @@ FirstScan * doScan(char * asFile, int strLen)
                         
                     else
                     {
+
+                    if(isAlphabet( doubleCharP[0][0]) == 0)
+                    {
+                        printf("Error in line %d, illiogel Label", lineCounter);
+                        errorCounter++;
+                    }
+
+                    if(isSavedWord(doubleCharP[0]) == 1)
+                    {
+                        printf("Error in line %d, illiogel Label", lineCounter);
+                        errorCounter++;
+                    }
                         firstScan->currentSymbol->nextNode = createSymbol();
                         firstScan->currentSymbol = firstScan->currentSymbol->nextNode;
                         strcpy(firstScan->currentSymbol->symbole,doubleCharP[0]);
@@ -389,128 +574,133 @@ FirstScan * doScan(char * asFile, int strLen)
 
                 }
 
-                tempAction = getAction(doubleCharP[symbolFlag]);
+                tempAction = getAction(doubleCharP[symbolFlag]); /* Getts current action */
+
+                if(tempAction == NULL) /* meaonig action not found */
+                {
+                    printf("Error in line %d, %s is not an action\n", lineCounter, doubleCharP[symbolFlag]);
+                    errorCounter++;
+                }
 
                 
-                
-                if(tempAction->actionType == 'R')
-                {
-                    // verify all are names of rgs ***********************
-                    if(tempAction->numOfop == 3)
-                    {
-                        firstScan->currentLine->val = codeAction(tempAction,atoi(doubleCharP[symbolFlag + 1]), atoi(doubleCharP[symbolFlag + 2]), atoi(doubleCharP[symbolFlag + 3]), 0, 0 , 0);
-                        firstScan->currentLine->nextNode = createIntNode();
-                        firstScan->currentLine = firstScan->currentLine->nextNode;
-                        firstScan->lineCounter++;
-                        firstScan->currentLine->lineIC = firstScan->IC;
-                        firstScan->IC += 4;
-                    }
-
-
-
-                    else if(tempAction->numOfop == 2)
-                    {
-                        firstScan->currentLine->val = codeAction(tempAction,atoi(doubleCharP[symbolFlag + 1]), 0, atoi(doubleCharP[symbolFlag + 2]), 0, 0 , 0);
-                        firstScan->currentLine->nextNode = createIntNode();
-                        firstScan->currentLine = firstScan->currentLine->nextNode;
-                        firstScan->lineCounter++;
-                        firstScan->currentLine->lineIC = firstScan->IC;
-                        firstScan->IC += 4;
-                    }
-
-                    else
-                    {
-                        printf("Unexpected error");
-                    }
-
-                }
-
-                else if(tempAction->actionType == 'I')
-                {
-                    if(tempAction->opcode < 15 && tempAction->opcode > 9)
-                    {
-                        firstScan->currentLine->val = codeAction(tempAction,atoi(doubleCharP[symbolFlag + 1]), atoi(doubleCharP[symbolFlag + 3]), 0,atoi(doubleCharP[symbolFlag + 2]), 0, 0);
-                        firstScan->currentLine->nextNode = createIntNode();
-                        firstScan->currentLine = firstScan->currentLine->nextNode;
-                        firstScan->lineCounter++;
-                        firstScan->currentLine->lineIC = firstScan->IC;
-                        firstScan->IC += 4;
-                    }
-
-                    else if(tempAction->opcode < 19 && tempAction->opcode > 14)
-                    {
-                        if(isAlphabet(doubleCharP[symbolFlag + 3][0]) == 1)
-                        {
-                            firstScan->currentLine->labelIsOp = lineCounter;
-                            firstScan->currentLine->val = codeAction(tempAction, 0, 0, 0, 0 , 0, 0);;
-                            firstScan->currentLine->nextNode = createIntNode();
-                            firstScan->currentLine = firstScan->currentLine->nextNode;
-                            firstScan->lineCounter++;
-                            firstScan->currentLine->lineIC = firstScan->IC;
-                            firstScan->IC += 4;
-                        }
-                    }
-
-                    else
-                    {
-                        firstScan->currentLine->val = codeAction(tempAction,atoi(doubleCharP[symbolFlag + 1]), atoi(doubleCharP[symbolFlag + 3]), 0,atoi(doubleCharP[symbolFlag + 2]), 0, 0);
-                        firstScan->currentLine->nextNode = createIntNode();
-                        firstScan->currentLine = firstScan->currentLine->nextNode;
-                        firstScan->lineCounter++;
-                        firstScan->currentLine->lineIC = firstScan->IC;
-                        firstScan->IC += 4;
-                    }
-                }
-
-                else if(tempAction->actionType == 'J')
-                {
-                    if(isAlphabet(doubleCharP[symbolFlag + 1][0]) == 1)
-                    {
-
-                        firstScan->currentLine->labelIsOp = lineCounter;
-                        firstScan->currentLine->val = codeAction(tempAction, 0, 0, 0, 0 , 0, 0);
-                        firstScan->currentLine->nextNode = createIntNode();
-                        firstScan->currentLine = firstScan->currentLine->nextNode;
-                        firstScan->lineCounter++;
-                        firstScan->currentLine->lineIC = firstScan->IC;
-                        firstScan->IC += 4;
-                    }
-
-                    else
-                    {
-                        if(tempAction->opcode == 30) // jmp
-                        {
-
-                        firstScan->currentLine->val = codeAction(tempAction, 0, 0, 0, 0, 0, atoi(doubleCharP[symbolFlag + 1]));
-                        firstScan->currentLine->nextNode = createIntNode();
-                        firstScan->currentLine = firstScan->currentLine->nextNode;
-                        firstScan->lineCounter++;
-                        firstScan->currentLine->lineIC = firstScan->IC;
-                        firstScan->IC += 4;
-
-                        }
-
-                        else if(tempAction->opcode == 63)
-                        {
-                            firstScan->currentLine->val = codeAction(tempAction, 0, 0, 0, 0, 0, 0);
-                            firstScan->currentLine->nextNode = createIntNode();
-                            firstScan->currentLine = firstScan->currentLine->nextNode;
-                            firstScan->lineCounter++;
-                            firstScan->currentLine->lineIC = firstScan->IC;
-                            firstScan->IC += 4;
-                        }
-                    }  
-                }
-
                 else
-                {
-                    printf("Problem Occured\n");
+                {   
+                    
+                    if(tempAction->actionType == 'R')
+                    {
+                        if(tempAction->numOfop == 3)
+                        {
+                            firstScan->currentLine->val = codeAction(tempAction,atoi(doubleCharP[symbolFlag + 1]), atoi(doubleCharP[symbolFlag + 2]), atoi(doubleCharP[symbolFlag + 3]), 0, 0 , 0);
+                            firstScan->currentLine->nextNode = createIntNode();
+                            firstScan->currentLine = firstScan->currentLine->nextNode;
+                            firstScan->lineCounter++;
+                            firstScan->currentLine->lineIC = firstScan->IC;
+                            firstScan->IC += 4;
+                        }
+
+
+
+                        else if(tempAction->numOfop == 2)
+                        {
+                            firstScan->currentLine->val = codeAction(tempAction,atoi(doubleCharP[symbolFlag + 1]), 0, atoi(doubleCharP[symbolFlag + 2]), 0, 0 , 0);
+                            firstScan->currentLine->nextNode = createIntNode();
+                            firstScan->currentLine = firstScan->currentLine->nextNode;
+                            firstScan->lineCounter++;
+                            firstScan->currentLine->lineIC = firstScan->IC;
+                            firstScan->IC += 4;
+                        }
+
+                        else
+                        {
+                            printf("Unexpected error");
+                            errorCounter++;
+                        }
+
+                    }
+
+                    else if(tempAction->actionType == 'I')
+                    {
+                        if(tempAction->opcode < 15 && tempAction->opcode > 9)
+                        {
+                            firstScan->currentLine->val = codeAction(tempAction,atoi(doubleCharP[symbolFlag + 1]), atoi(doubleCharP[symbolFlag + 3]), 0,atoi(doubleCharP[symbolFlag + 2]), 0, 0);
+                            firstScan->currentLine->nextNode = createIntNode();
+                            firstScan->currentLine = firstScan->currentLine->nextNode;
+                            firstScan->lineCounter++;
+                            firstScan->currentLine->lineIC = firstScan->IC;
+                            firstScan->IC += 4;
+                        }
+
+                        else if(tempAction->opcode < 19 && tempAction->opcode > 14)
+                        {
+                            if(isAlphabet(doubleCharP[symbolFlag + 3][0]) == 1)
+                            {
+                                firstScan->currentLine->labelIsOp = lineCounter;
+                                firstScan->currentLine->val = codeAction(tempAction, 0, 0, 0, 0 , 0, 0);;
+                                firstScan->currentLine->nextNode = createIntNode();
+                                firstScan->currentLine = firstScan->currentLine->nextNode;
+                                firstScan->lineCounter++;
+                                firstScan->currentLine->lineIC = firstScan->IC;
+                                firstScan->IC += 4;
+                            }
+                        }
+
+                        else
+                        {
+                            firstScan->currentLine->val = codeAction(tempAction,atoi(doubleCharP[symbolFlag + 1]), atoi(doubleCharP[symbolFlag + 3]), 0,atoi(doubleCharP[symbolFlag + 2]), 0, 0);
+                            firstScan->currentLine->nextNode = createIntNode();
+                            firstScan->currentLine = firstScan->currentLine->nextNode;
+                            firstScan->lineCounter++;
+                            firstScan->currentLine->lineIC = firstScan->IC;
+                            firstScan->IC += 4;
+                        }
+                    }
+
+                    else if(tempAction->actionType == 'J')
+                    {
+                        if(isAlphabet(doubleCharP[symbolFlag + 1][0]) == 1)
+                        {
+
+                            firstScan->currentLine->labelIsOp = lineCounter;
+                            firstScan->currentLine->val = codeAction(tempAction, 0, 0, 0, 0 , 0, 0);
+                            firstScan->currentLine->nextNode = createIntNode();
+                            firstScan->currentLine = firstScan->currentLine->nextNode;
+                            firstScan->lineCounter++;
+                            firstScan->currentLine->lineIC = firstScan->IC;
+                            firstScan->IC += 4;
+                        }
+
+                        else
+                        {
+                            if(tempAction->opcode == 30) 
+                            {
+
+                            firstScan->currentLine->val = codeAction(tempAction, 0, 0, 0, 0, 0, atoi(doubleCharP[symbolFlag + 1]));
+                            firstScan->currentLine->nextNode = createIntNode();
+                            firstScan->currentLine = firstScan->currentLine->nextNode;
+                            firstScan->lineCounter++;
+                            firstScan->currentLine->lineIC = firstScan->IC;
+                            firstScan->IC += 4;
+
+                            }
+
+                            else if(tempAction->opcode == 63)
+                            {
+                                firstScan->currentLine->val = codeAction(tempAction, 0, 0, 0, 0, 0, 0);
+                                firstScan->currentLine->nextNode = createIntNode();
+                                firstScan->currentLine = firstScan->currentLine->nextNode;
+                                firstScan->lineCounter++;
+                                firstScan->currentLine->lineIC = firstScan->IC;
+                                firstScan->IC += 4;
+                            }
+                        }  
+                    }
                 }
             }
 
             else
             {
                 printf("unexcpected error\n");
+                errorCounter++;
                 exit(1);
             }
         }
@@ -518,6 +708,12 @@ FirstScan * doScan(char * asFile, int strLen)
         curNode = curNode->nextNode;
         symbolFlag = 0;
         lineCounter++;
+    }
+
+    if(errorCounter > 0)
+    {
+        printf("exit with %d erros\n", errorCounter);
+        exit(2);
     }
 
     return firstScan;
