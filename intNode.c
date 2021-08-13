@@ -3,7 +3,7 @@
 
 #define true 1
 #define false 0
-
+/* this modoule is used for the scan line, which are coded in araay of number(0 and 1)*/
 IntNode * createIntNode()
 {
     IntNode * node = (IntNode*)malloc(sizeof(IntNode));
