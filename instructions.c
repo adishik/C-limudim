@@ -1,11 +1,13 @@
 #include "instructions.h"
+#include "parser.h"
 
 #define byte 1
 #define true 1
 #define false 0
+#define MAX_LABLE_LEN 60
 
 
-int  ** freeDInstructions(char instructionType,int * intstructionParms, int parmsSize)
+int  ** freeDInstructions(char instructionType,int * intstructionParms, int parmsSize) /* clear spce for .d instructions*/
 {
     int ** instructionpPointer;
     int * tempBin;
@@ -30,7 +32,7 @@ int  ** freeDInstructions(char instructionType,int * intstructionParms, int parm
     return instructionpPointer;
 }
 
-int ** freeAsInstruction(char * parm)
+int ** freeAsInstruction(char * parm) /* clear spce for .asciz instructions*/
 {
     int * tempBin;
     int ** instructionpPointer = malloc(sizeof(int *) * (int)strlen(parm));
@@ -51,5 +53,40 @@ int ** freeAsInstruction(char * parm)
 
     return instructionpPointer;
 
+}
+
+int checkInstructionSyntax(char * node, int strLen)
+{
+    char  * temp;
+    int i = 0, z = 0;
+
+
+    temp = (char*)malloc(strLen * sizeof(char));        
+    for (i = 0; i < strLen ; i++)
+    {
+        if(node[i] != ' ')
+        {
+            temp[i] = node[i];
+        }
+    }
+
+    z = i;
+
+    for (i = 0; i < z ; i++)
+    {
+        if(temp[i] == temp[i + 1] && (temp[i] == ','))
+        {
+            return 1;
+        }
+    }
+
+    if(strLen > 60)
+    {
+        return 2;
+    }
+
+    return 0;
+  
+    
 }
 
