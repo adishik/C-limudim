@@ -16,8 +16,8 @@ struct _TextNode
 typedef struct _TextNode TextNode;
 TextNode * createNode(int strLen);
 
-TextNode * lineParser(char * txt, int strLen);
-TextNode * wordParser(char * line);
+TextNode * lineParser(char * txt, int strLen); /* parser according to \n */
+TextNode * wordParser(char * line); /* parser according to :, $ */
 
 
 #endif
