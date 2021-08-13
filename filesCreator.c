@@ -1,6 +1,7 @@
 #include "filesCreator.h"
 
     
+/* this moudle generates the files*/
     
     
     
@@ -27,21 +28,21 @@ void creatFiles(int argc, char *argv[])
 
 
     
-    for (y = 1; y < argc; y++)
+    for (y = 1; y < argc; y++) /* for each file in the command arrgs*/
     {
 
-        saveName = (char*)malloc(strlen(argv[1]));
+        saveName = (char*)malloc(strlen(argv[y]));
 
         i = 0;
-        while(argv[1][i] != '.')
+        while(argv[y][i] != '.')
         {
-            saveName[i] = argv[1][i];
+            saveName[i] = argv[y][i];
             i++;
         }
         
 
         fp = fopen(argv[y], "r");    
-        // checking if the file exist or not
+        /* checking if the file exist or not */
         if (fp == NULL) 
         {
             printf("File Not Found!\n");
@@ -50,13 +51,12 @@ void creatFiles(int argc, char *argv[])
     
         fseek(fp, 0L, SEEK_END);
     
-        // calculating the size of the file
+        /* calculating the size of the file */
         res = ftell(fp);
     
         rewind(fp);
         
         buffer = (char*)malloc(res + 1);
-        // closing the file
 
         fread(buffer, res, 1, fp);
         buffer[res] = '\0';
@@ -71,9 +71,8 @@ void creatFiles(int argc, char *argv[])
 
         gg = (FirstScan*)malloc(sizeof(FirstScan));
 
-
-        gg = doScan(buffer, res);
-        gg = doSecondScan(gg, buffer2, res2);
+        gg = doScan(buffer, res); /* First Scan */
+        gg = doSecondScan(gg, buffer2, res2); /* Second Scan */
         
 
         strcpy(tempFileName, saveName);
@@ -91,7 +90,7 @@ void creatFiles(int argc, char *argv[])
 
         t = 100;
 
-        while(gg->currentLine != NULL)
+        while(gg->currentLine != NULL) /* the next model turns the second scan Binary code to hexadecimal*/
         {
             if(gg->currentLine->nextNode == NULL)
             {
@@ -122,7 +121,7 @@ void creatFiles(int argc, char *argv[])
 
                tempInt = (int)strtol(tempString, NULL, 2);
 
-               sprintf(tempString, "%x", tempInt);
+               sprintf(tempString, "%x", tempInt); /* turn Bin to Hex */
 
                strcat(tempLine, tempString);
 
@@ -140,7 +139,7 @@ void creatFiles(int argc, char *argv[])
 
 
                
-               tempInt = (int)strtol(tempString, NULL, 2);
+               tempInt = (int)strtol(tempString, NULL, 2); /* turn Bin to Hex */
 
                sprintf(tempString, "%x", tempInt);
 
@@ -168,51 +167,86 @@ void creatFiles(int argc, char *argv[])
         }
 
         fclose(fp);
+        i = 0;
 
-        strcpy(tempFileName, saveName);
-        strcat(tempFileName, ".ent");
-        fp = fopen(tempFileName, "w");
+        gg->currentSymbol = gg->firstSymbol; /* Create .ent files, if nescary*/
 
-        if (fp == NULL)
-        {
-            fprintf(fp, "File does not exist.\n");
-            return;
-        }
-
-        gg->currentSymbol = gg->firstSymbol;
-
-         while(gg->currentSymbol->nextNode != NULL)
+        while(gg->currentSymbol->nextNode != NULL)
         {
             if(strstr(gg->currentSymbol->att, "entry"))
             {
-                fprintf(fp, "%s %d\n",gg->currentSymbol->symbole, gg->currentSymbol->val);
+                i++;
             }
 
             gg->currentSymbol = gg->currentSymbol->nextNode;
         }
 
-        fclose(fp);
-
-        strcpy(tempFileName, saveName);
-        strcat(tempFileName, ".ext");
-        fp = fopen(tempFileName, "w");
-
-        if (fp == NULL)
+        if(i > 0)
         {
-            fprintf(fp, "File does not exist.\n");
-            return;
+            strcpy(tempFileName, saveName);
+            strcat(tempFileName, ".ent");
+            fp = fopen(tempFileName, "w");
+
+            if (fp == NULL)
+            {
+                fprintf(fp, "File does not exist.\n");
+                return;
+            }
+
+            gg->currentSymbol = gg->firstSymbol;
+            
+
+
+            while(gg->currentSymbol->nextNode != NULL)
+            {
+                if(strstr(gg->currentSymbol->att, "entry"))
+                {
+                    fprintf(fp, "%s %d\n",gg->currentSymbol->symbole, gg->currentSymbol->val);
+                }
+
+                gg->currentSymbol = gg->currentSymbol->nextNode;
+            }
+
+        fclose(fp);
         }
 
-        gg->currentSymbol = gg->firstSymbol;
+        i = 0;
 
-         while(gg->currentSymbol->nextNode != NULL)
+        gg->currentSymbol = gg->firstSymbol; /* Create .ext files, if nescary*/
+
+        while(gg->currentSymbol->nextNode != NULL)
         {
             if(strstr(gg->currentSymbol->att, "external"))
             {
-                fprintf(fp, "%s %d\n",gg->currentSymbol->symbole, gg->currentSymbol->val);
+                i++;
             }
 
             gg->currentSymbol = gg->currentSymbol->nextNode;
+        }
+
+        if( i > 0 )
+        {
+            strcpy(tempFileName, saveName);
+            strcat(tempFileName, ".ext");
+            fp = fopen(tempFileName, "w");
+
+            if (fp == NULL)
+            {
+                fprintf(fp, "File does not exist.\n");
+                return;
+            }
+
+            gg->currentSymbol = gg->firstSymbol;
+
+            while(gg->currentSymbol->nextNode != NULL)
+            {
+                if(strstr(gg->currentSymbol->att, "external"))
+                {
+                    fprintf(fp, "%s %d\n",gg->currentSymbol->symbole, gg->currentSymbol->val);
+                }
+
+                gg->currentSymbol = gg->currentSymbol->nextNode;
+            }
         }
 
 
@@ -223,9 +257,10 @@ void creatFiles(int argc, char *argv[])
 
         res = 0;
         res2 = 0;
+        free(gg);
 
     }
     
 
-    free(gg);
+    
 }
