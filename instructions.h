@@ -1,10 +1,20 @@
-#include "actionTable.h"
-#define byte 1
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stdbool.h>
 
-#ifndef __INSTRUCTION_TABLE__
-#define __INSTRUCTION_TABLE__
+/* this moudle handels the symbols*/
 
-int ** freeDInstructions(char instructionType, int * intstructionParms, int parmsSize);
-int ** freeAsInstruction(char * parm);
+struct _SymbolNode 
+{
+    char * symbole;
+    int val;
+    char * att;
+    struct _SymbolNode * nextNode;
 
-#endif
+};
+typedef struct _SymbolNode SymbolNode;
+
+SymbolNode * createSymbol();
+SymbolNode * addSymbole(char * symbolName, int val, char * att, SymbolNode * node);
+int checkIfSymbolExsits(SymbolNode * node, char * symbol);/* chwlc if the current symbol exsits in the table*/
