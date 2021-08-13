@@ -1,7 +1,9 @@
 #include "actionTable.h"
+#include "parser.h"
 
 #define true 1
 #define false 0
+#define MAX_LABEL_LEN 60
 
 int * convDectoBin(int decimalNumber, int  * binaryNumber) 
 {
@@ -25,7 +27,7 @@ int * convDectoBin(int decimalNumber, int  * binaryNumber)
 
     }
 
-    if(isNegative == true)
+    if(isNegative == true) /* this will turn the number in to משלים ל2*/
     {
         for (i = 0; i < 31; i++)
         {
@@ -56,6 +58,8 @@ int * convDectoBin(int decimalNumber, int  * binaryNumber)
     }
     return binaryNumber;
 }
+
+/*this is the action table*/
 
 static struct _Action actionTable[27] = 
                                 {
@@ -270,5 +274,93 @@ int * codeAction(Action * action, int rs, int rt, int rd, int imme, int reg, int
         return binLine;
     }
 
+
+}
+
+int checkActionSyntax(Action * tempAction, char * line, int strLine) /*coding the action according tot he specification*/
+{
+    char  * temp;
+    char  * temp2;
+    char ** doubleCharP;
+    int i = 0, z = 0, symbolFlag = 0, y = 0;
+
+    TextNode  * nextNode;
+    TextNode * par;
+    TextNode * firstNode;
+    firstNode = (TextNode*)malloc(sizeof(TextNode));
+    par = firstNode;
+
+    temp = (char*)malloc(strLine);
+    temp2 = (char*)malloc(strLine);
+
+    for (y = 0; y < strlen(line); y++)
+    {
+        if(line[y] == ':')
+        {
+            symbolFlag = 1;
+        }
+    }
+
+    for (i = 0; i < strLine ; i++)
+    {
+        if(line[i] != ' ')
+        {
+            temp[i] = line[i];
+        }
+    }
+
+    z = i;
+
+    for (i = 0; i < z ; i++)
+    {
+        if(temp[i] == temp[i + 1] && (temp[i] == ','))
+        {
+            return 1; /* too many commas*/
+        }
+    }
+
+    if(strLine > 60)
+    {
+        return 2; /*line was too long*/
+    }
+
+    doubleCharP = malloc(strLine * sizeof(char*));
+
+    i = 0;
+    par->val = strtok(line, " :,");
+    doubleCharP[i] = (char*)malloc(strLine);
+    doubleCharP[i] = par->val;
+    
+
+    if(par->val == NULL)
+    {
+        printf("NULL\n");
+       
+
+        return 0;
+    }
+
+
+   
+    while(par->val != NULL)
+    {
+        i++;
+        nextNode = createNode(MAX_LABEL_LEN);
+        par->nodeSize++;
+        par->nextNode = nextNode;
+        par = par->nextNode;
+        par->val = strtok(NULL, " :,");
+        doubleCharP[i] = (char*)malloc(strLine);
+        doubleCharP[i] = par->val;
+        
+    }
+
+
+    
+  
+    free(tempAction);
+    free(temp);
+    free(temp2);
+    return 0;
 
 }
