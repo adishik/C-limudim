@@ -1,5 +1,5 @@
 #include "firstScan.h"
-#define MAX_LABEL_LEN 60
+#define MAX_LABEL_LEN 80
 
 #define true 1
 #define false 0
@@ -23,12 +23,12 @@ FirstScan * initScan()
 
 
 
-int checkEmpty(char * line)
+int checkEmpty(char * line) /* This chekcs if the line is empty or a note */
 {
     int i = 0, counter = 0;
     for (i = 0; i < strlen(line); i++)
     {
-        if(line[i] == ' ' || line[i] == '\t' || line[i] == '\0')
+        if(line[i] == ' ' || line[i] == '\t' || line[i] == '\0') /* Empty */
         {
             counter ++;
         }
@@ -39,7 +39,7 @@ int checkEmpty(char * line)
         return true;
     }
 
-    if(line[0] == ';')
+    if(line[0] == ';') /* Note */
     {
         return true;
     }
@@ -48,7 +48,7 @@ int checkEmpty(char * line)
     
 }
 
-int isAlphabet(char firstChar)
+int isAlphabet(char firstChar) /* Gets char return if it's alphabet or not */
 {
     if(((int)firstChar <= 90 && (int)firstChar >= 65) || ((int)firstChar <= 122 && (int)firstChar >= 97) )
     {
@@ -59,7 +59,7 @@ int isAlphabet(char firstChar)
     return false;
 }
 
-int isLabel(char * label)
+int isLabel(char * label) /* Checks if there is a legal label is this line */
 {
     int i = 0;
     for (i = 0; i < strlen(label); i++)
@@ -75,7 +75,7 @@ int isLabel(char * label)
     
 }
 
-int isSavedWord(char * label)
+int isSavedWord(char * label) /* Retrun whether a lable is saved word */
 {
     if(strcmp(label, "add") == 0 ||
         strcmp(label, "sub") == 0  ||
@@ -117,7 +117,7 @@ int isSavedWord(char * label)
         return 0;
 }
 
-FirstScan * doScan(char * asFile, int strLen)
+FirstScan * doScan(char * asFile, int strLen) /* First Scan */
 {
     
     char * temp;
@@ -129,9 +129,7 @@ FirstScan * doScan(char * asFile, int strLen)
     TextNode * curNode;
     TextNode * curWord;
     TextNode * tempNode;
-    TextNode * tempNodeCopy;
     Action * tempAction;
-    Action * tempAction2;
 
 
     int intTemp[MAX_LABEL_LEN];
@@ -149,9 +147,7 @@ FirstScan * doScan(char * asFile, int strLen)
     curNode = firstNode;
     curWord = createNode(MAX_LABEL_LEN);
     tempNode = createNode(MAX_LABEL_LEN);
-    tempNodeCopy = createNode(MAX_LABEL_LEN);
     tempAction = (Action*)malloc(sizeof(Action));
-    tempAction2 = (Action*)malloc(sizeof(Action));
 
 
     while(curNode->val != NULL) /* as long as thei are white labels we skip them*/
@@ -169,7 +165,7 @@ FirstScan * doScan(char * asFile, int strLen)
                 break;
             }
         }
-        temp = (char*)malloc(sizeof(strLen));
+        temp = (char*)malloc(strLen*sizeof(char));
         strcpy(temp, curNode->val);
 
        
@@ -191,12 +187,16 @@ FirstScan * doScan(char * asFile, int strLen)
             temp = strchr(curNode->val,'.');
 
             i = checkInstructionSyntax(temp, strlen(temp));
+	    
 
             if(i != 0)
             {
                 if(i == 1)
                 {
                     printf("Syntax error in %d, to many commas\n", lineCounter);
+		    curNode = curNode->nextNode;
+        	    symbolFlag = 0;
+                    lineCounter++;
                     errorCounter++;
                 }
 
@@ -226,7 +226,7 @@ FirstScan * doScan(char * asFile, int strLen)
                 doublePointer = freeDInstructions('b', intTemp, z);
 
 
-                for (i = 0; i < z ; i++)
+                for (i = 0; i < z ; i++) /* for each number we need to assign memory */
                 {
                     firstScan->currentLine->val = doublePointer[i];
                     firstScan->currentLine->nextNode = createIntNode();
@@ -262,7 +262,7 @@ FirstScan * doScan(char * asFile, int strLen)
                 doublePointer = freeDInstructions('w', intTemp, z);
 
 
-                for (i = 1; i < z ; i++)
+                for (i = 1; i < z ; i++) /* for each number we need to assign memory */
                 {
                     firstScan->currentLine->val = doublePointer[i];
                     firstScan->currentLine->nextNode = createIntNode();
@@ -298,7 +298,7 @@ FirstScan * doScan(char * asFile, int strLen)
                 doublePointer = freeDInstructions('h', intTemp, z);
 
 
-                for (i = 1; i < z ; i++)
+                for (i = 1; i < z ; i++) /* for each number we need to assign memory */
                 {
                     firstScan->currentLine->val = doublePointer[i];
                     firstScan->currentLine->nextNode = createIntNode();
@@ -352,19 +352,19 @@ FirstScan * doScan(char * asFile, int strLen)
                     i++;
                 }
 
-                if(firstScan->firstSymbol == NULL)
+                if(firstScan->firstSymbol == NULL) /*Checks label valididty */
                 {
                     
                     firstScan->firstSymbol = createSymbol();
                     if(isAlphabet( doubleCharP[1][0]) == 0)
                     {
-                        printf("Error in line %d, illiogel Label", lineCounter);
+                        printf("Error in line %d, illegal Label\n", lineCounter);
                         errorCounter++;
                     }
 
                     if(isSavedWord(doubleCharP[0]) == 1)
                     {
-                        printf("Error in line %d, illiogel Label", lineCounter);
+                        printf("Error in line %d, illegal Label\n", lineCounter);
                         errorCounter++;
                     }
                     strcpy(firstScan->firstSymbol->symbole,doubleCharP[1]);
@@ -377,14 +377,14 @@ FirstScan * doScan(char * asFile, int strLen)
                 {
                     if(isAlphabet( doubleCharP[1][0]) == 0)
                     {
-                        printf("Error in line %d, illiogel Label", lineCounter);
+                        printf("Error in line %d, illegal Label\n", lineCounter);
                         errorCounter++;
                     }
 
 
                     if(isSavedWord(doubleCharP[1]) == 1)
                     {
-                        printf("Error in line %d, illiogel Label", lineCounter);
+                        printf("Error in line %d, illegal Label\n", lineCounter);
                         errorCounter++;
                     }
 
@@ -426,19 +426,19 @@ FirstScan * doScan(char * asFile, int strLen)
                     errorCounter++;
                 }
                 
-                if(instructionFlag == 1)
+                if(instructionFlag == 1) /* if it's an instruction */
                 {
                     if(firstScan->firstSymbol == NULL)
                     {
                         if(isAlphabet( curWord->val[0]) == 0)
                         {
-                            printf("Error in line %d, illiogel Label", lineCounter);
+                            printf("Error in line %d, illegal Label\n", lineCounter);
                             errorCounter++;
                         }
 
                         if(isSavedWord(curWord->val) == 1)
                         {
-                            printf("Error in line %d, illiogel Label", lineCounter);
+                            printf("Error in line %d, illegal Label\n", lineCounter);
                             errorCounter++;
                         }
 
@@ -453,13 +453,13 @@ FirstScan * doScan(char * asFile, int strLen)
                     {
                         if(isAlphabet( curWord->val[0]) == 0)
                         {
-                            printf("Error in line %d, illiogel Label", lineCounter);
+                            printf("Error in line %d, illegal Label\n", lineCounter);
                             errorCounter++;
                         }
 
                         if(isSavedWord(curWord->val) == 1)
                         {
-                            printf("Error in line %d, illiogel Label", lineCounter);
+                            printf("Error in line %d, illegal Label\n", lineCounter);
                             errorCounter++;
                         }
 
@@ -483,7 +483,7 @@ FirstScan * doScan(char * asFile, int strLen)
 
             strcpy(temp, curNode->val);
         
-            tempNode = wordParser(temp);
+            tempNode = wordParser(temp); /* Parsing line to Words */
             
             if(tempAction == NULL)
             {
@@ -501,15 +501,13 @@ FirstScan * doScan(char * asFile, int strLen)
 
                 if(doubleCharP == NULL)
                 {
-                    printf("Memory problem in line %d", lineCounter);
+                    printf("Memory problem in line %d\n", lineCounter);
                 }
 
 
                 i = 0;
-                tempNodeCopy = createNode(MAX_LABEL_LEN);
-                tempNodeCopy = tempNode;
 
-                while (tempNode->val != NULL)
+                while (tempNode->val != NULL) 
                 {
                     doubleCharP[i] = (char*)malloc(sizeof(char) * MAX_INT);
                     doubleCharP[i] = tempNode->val;
@@ -523,7 +521,7 @@ FirstScan * doScan(char * asFile, int strLen)
                     lastSymbol = createSymbol();
                     lastSymbol = firstScan->firstSymbol;
 
-                    if(checkIfSymbolExsits(lastSymbol, doubleCharP[0]) == 1)
+                    if(checkIfSymbolExsits(lastSymbol, doubleCharP[0]) == 1) /* Checks if the symbol already exsists in the symbol table */
                     {
                         printf("Error in line %d Symbol %s already exsists\n", lineCounter, doubleCharP[0]);
                         errorCounter++;
@@ -533,13 +531,13 @@ FirstScan * doScan(char * asFile, int strLen)
                     {
                         if(isAlphabet( doubleCharP[0][0]) == 0)
                     {
-                        printf("Error in line %d, illiogel Label", lineCounter);
+                        printf("Error in line %d, illegal Label\n", lineCounter);
                         errorCounter++;
                     }
 
-                    if(isSavedWord(doubleCharP[0]) == 1)
+                    if(isSavedWord(doubleCharP[0]) == 1) /* Checks if the symbol is saved word */
                     {
-                        printf("Error in line %d, illiogel Label", lineCounter);
+                        printf("Error in line %d, illegal Label\n", lineCounter);
                         errorCounter++;
                     }
                         
@@ -555,13 +553,13 @@ FirstScan * doScan(char * asFile, int strLen)
 
                     if(isAlphabet( doubleCharP[0][0]) == 0)
                     {
-                        printf("Error in line %d, illiogel Label", lineCounter);
+                        printf("Error in line %d, illegal Label\n", lineCounter);
                         errorCounter++;
                     }
 
                     if(isSavedWord(doubleCharP[0]) == 1)
                     {
-                        printf("Error in line %d, illiogel Label", lineCounter);
+                        printf("Error in line %d, illegal Label\n", lineCounter);
                         errorCounter++;
                     }
                         firstScan->currentSymbol->nextNode = createSymbol();
@@ -576,7 +574,7 @@ FirstScan * doScan(char * asFile, int strLen)
 
                 tempAction = getAction(doubleCharP[symbolFlag]); /* Getts current action */
 
-                if(tempAction == NULL) /* meaonig action not found */
+                if(tempAction == NULL) /* meaning action not found */
                 {
                     printf("Error in line %d, %s is not an action\n", lineCounter, doubleCharP[symbolFlag]);
                     errorCounter++;
@@ -586,9 +584,9 @@ FirstScan * doScan(char * asFile, int strLen)
                 else
                 {   
                     
-                    if(tempAction->actionType == 'R')
+                    if(tempAction->actionType == 'R') /* Coding R type actions */
                     {
-                        if(tempAction->numOfop == 3)
+                        if(tempAction->numOfop == 3) /* Case the number of operands is 3 */
                         {
                             firstScan->currentLine->val = codeAction(tempAction,atoi(doubleCharP[symbolFlag + 1]), atoi(doubleCharP[symbolFlag + 2]), atoi(doubleCharP[symbolFlag + 3]), 0, 0 , 0);
                             firstScan->currentLine->nextNode = createIntNode();
@@ -600,7 +598,7 @@ FirstScan * doScan(char * asFile, int strLen)
 
 
 
-                        else if(tempAction->numOfop == 2)
+                        else if(tempAction->numOfop == 2) /* Case the number of operands is 2 */
                         {
                             firstScan->currentLine->val = codeAction(tempAction,atoi(doubleCharP[symbolFlag + 1]), 0, atoi(doubleCharP[symbolFlag + 2]), 0, 0 , 0);
                             firstScan->currentLine->nextNode = createIntNode();
@@ -618,9 +616,9 @@ FirstScan * doScan(char * asFile, int strLen)
 
                     }
 
-                    else if(tempAction->actionType == 'I')
+                    else if(tempAction->actionType == 'I') /* Coding I type actions */
                     {
-                        if(tempAction->opcode < 15 && tempAction->opcode > 9)
+                        if(tempAction->opcode < 15 && tempAction->opcode > 9) /* nori, andi, ori, subi, addi */
                         {
                             firstScan->currentLine->val = codeAction(tempAction,atoi(doubleCharP[symbolFlag + 1]), atoi(doubleCharP[symbolFlag + 3]), 0,atoi(doubleCharP[symbolFlag + 2]), 0, 0);
                             firstScan->currentLine->nextNode = createIntNode();
@@ -630,7 +628,7 @@ FirstScan * doScan(char * asFile, int strLen)
                             firstScan->IC += 4;
                         }
 
-                        else if(tempAction->opcode < 19 && tempAction->opcode > 14)
+                        else if(tempAction->opcode < 19 && tempAction->opcode > 14) /* bgt, blt, bne, beq */
                         {
                             if(isAlphabet(doubleCharP[symbolFlag + 3][0]) == 1)
                             {
@@ -644,7 +642,7 @@ FirstScan * doScan(char * asFile, int strLen)
                             }
                         }
 
-                        else
+                        else /* all of the rest */
                         {
                             firstScan->currentLine->val = codeAction(tempAction,atoi(doubleCharP[symbolFlag + 1]), atoi(doubleCharP[symbolFlag + 3]), 0,atoi(doubleCharP[symbolFlag + 2]), 0, 0);
                             firstScan->currentLine->nextNode = createIntNode();
@@ -655,7 +653,7 @@ FirstScan * doScan(char * asFile, int strLen)
                         }
                     }
 
-                    else if(tempAction->actionType == 'J')
+                    else if(tempAction->actionType == 'J') /* we can't really do anything with J type action on the first scan so we are keeping them an empty line, wit only OP Coded, wil be treated in the Second scan */
                     {
                         if(isAlphabet(doubleCharP[symbolFlag + 1][0]) == 1)
                         {
@@ -713,7 +711,7 @@ FirstScan * doScan(char * asFile, int strLen)
     if(errorCounter > 0)
     {
         printf("exit with %d erros\n", errorCounter);
-        exit(2);
+        return 0;
     }
 
     return firstScan;
