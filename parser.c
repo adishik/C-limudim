@@ -1,5 +1,5 @@
 #include "parser.h"
-#define MAX_LABEL_LEN 60
+#define MAX_LABEL_LEN 80
 
 
 #define true 1
@@ -18,11 +18,11 @@ TextNode * createNode(int strLen)
 
 TextNode * lineParser(char * txt, int strLen) /* parser according to \n */
 {
-    TextNode * par;
-    TextNode * firstNode;
+    TextNode * par; /* will be used as temp node for parsing */
+    TextNode * firstNode; /* Will keep the first parsed node to return */
     par = createNode(strLen);
     firstNode = par;
-    par->val = strtok(txt, "\n");
+    par->val = strtok(txt, "\n"); /* parsing accordign to lines */
     par->nodeSize++;
    
     while(par->val != NULL)
@@ -42,11 +42,11 @@ TextNode * lineParser(char * txt, int strLen) /* parser according to \n */
 
 TextNode * wordParser(char * line) /* parser according to :, $ */
 {
-    TextNode * par;
-    TextNode * firstNode;
+    TextNode * par; /* will be used as temp node for parsing */
+    TextNode * firstNode; /* Will keep the first parsed node to return */
     firstNode = (TextNode*)malloc(sizeof(TextNode));
     par = firstNode;
-    par->val = strtok(line, " :,$");
+    par->val = strtok(line, " :,$"); /* parsing accordign to words */
 
     if(par->val == NULL)
     {
