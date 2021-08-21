@@ -2,7 +2,7 @@
 #define MAX_LABEL_LEN 31 
 
 
-SymbolNode * createSymbol()
+SymbolNode * createSymbol() /* Creating Symbol Node */
 {
     SymbolNode * node = (SymbolNode*)malloc(sizeof(SymbolNode));
     node->symbole = (char*)malloc(MAX_LABEL_LEN * sizeof(char));
@@ -14,7 +14,7 @@ SymbolNode * createSymbol()
     return node;
 }
 
-SymbolNode * addSymbole(char * symbolName, int val, char * att, SymbolNode * node)
+SymbolNode * addSymbole(char * symbolName, int val, char * att, SymbolNode * node) /* Addign symbol to the table */
 {
     SymbolNode * node2 = createSymbol();
     node2->symbole = symbolName;
@@ -24,7 +24,7 @@ SymbolNode * addSymbole(char * symbolName, int val, char * att, SymbolNode * nod
     return node2;
 }
 
-int checkIfSymbolExsits(SymbolNode * node, char * symbol)
+int checkIfSymbolExsits(SymbolNode * node, char * symbol) /* checks if the symbol exsists in the symbol table already */
 {
     while(node!= NULL)
     {
