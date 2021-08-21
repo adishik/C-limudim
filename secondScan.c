@@ -1,5 +1,5 @@
 #include "secondScan.h"
-#define MAX_LEN_LINE 60 
+#define MAX_LEN_LINE 80 
 #define INT_SIZE 32
 
 /* second scan, gets the result of the first*/
@@ -7,10 +7,9 @@
 FirstScan * doSecondScan(FirstScan * firstScan, char * asFile, int strLen)
 {  
     TextNode * tempNode;
-    char ** doubleCharP;
-    SymbolNode  * curSym;
-    TextNode * curWord;
-    TextNode * firstLine;
+    char ** doubleCharP; /* will be used to turn a line to char pointers */
+    TextNode * curWord; /* will be used to keep the current word */
+    TextNode * firstLine; /* will be used to keep the firstLine */
     Action * tempAction;
     int foundEntery = 0;
     int errorCounter = 0;
@@ -18,11 +17,10 @@ FirstScan * doSecondScan(FirstScan * firstScan, char * asFile, int strLen)
     int symbolFlag = 0;
     char  * temp;
     int lineCounter = 0;
-    int labelLoc = 0;
+    int labelLoc = 0; /* Label location */
     int labelFound = 0;
     tempNode = createNode(strLen);
     firstScan->currentLine = firstScan->firstLine;
-    curSym = createSymbol();
     curWord = createNode(MAX_LEN_LINE);
     temp = (char*)malloc((strLen + 1) *  sizeof(char));
     tempAction = (Action*)malloc(sizeof(Action));
@@ -119,7 +117,7 @@ FirstScan * doSecondScan(FirstScan * firstScan, char * asFile, int strLen)
                 if(strcmp(doubleCharP[labelLoc], firstScan->currentSymbol->symbole) == 0)
                 {
                     labelFound = 1;
-                    if(tempAction->actionType == 'I')
+                    if(tempAction->actionType == 'I') /* After finding the symbol we can code the line accordign to the action tyoe */
                     {
                         firstScan->currentLine->val = codeAction(tempAction,atoi(doubleCharP[symbolFlag + 1]), atoi(doubleCharP[symbolFlag + 2]), 0, firstScan->currentSymbol->val - firstScan->IC , 0 , 0 );
                     }
@@ -153,7 +151,7 @@ FirstScan * doSecondScan(FirstScan * firstScan, char * asFile, int strLen)
                 firstScan->currentSymbol = firstScan->currentSymbol->nextNode;
             }
             
-            if(labelFound == 0)
+            if(labelFound == 0) /* meaning we didn;t fine the lable  */
             {
                 printf("error in line %d, Symbool %s is not defined\n", lineCounter, doubleCharP[labelLoc]);
                 errorCounter++;
@@ -191,7 +189,7 @@ FirstScan * doSecondScan(FirstScan * firstScan, char * asFile, int strLen)
            
             i = 0;
 
-            while (curWord->val != NULL)
+            while (curWord->val != NULL) /* turning the line - which is a node to words at char matrix */
             {
                 doubleCharP[i] = (char*)malloc(sizeof(char) * INT_SIZE);
                 doubleCharP[i] = curWord->val;
@@ -246,7 +244,7 @@ FirstScan * doSecondScan(FirstScan * firstScan, char * asFile, int strLen)
     if(errorCounter > 0)
     {
         printf("exit with %d erros\n", errorCounter);
-        exit(2);
+        return 0;
     }
     
     return firstScan;
