@@ -5,7 +5,7 @@
 #define false 0
 #define MAX_LABEL_LEN 60
 
-int * convDectoBin(int decimalNumber, int  * binaryNumber) 
+int * convDectoBin(int decimalNumber, int  * binaryNumber, int size) /*Convert decimal number to Binary*/
 {
     long int quotient;
     int i = 0,j = 0;
@@ -19,8 +19,7 @@ int * convDectoBin(int decimalNumber, int  * binaryNumber)
         decimalNumber =  abs(decimalNumber);
     }
 
-    while(quotient!=0){
-
+    while(quotient!=0 && i < size){
         binaryNumber[i++]= quotient % 2;
 
         quotient = quotient / 2;
@@ -29,7 +28,7 @@ int * convDectoBin(int decimalNumber, int  * binaryNumber)
 
     if(isNegative == true) /* this will turn the number in to משלים ל2*/
     {
-        for (i = 0; i < 31; i++)
+        for (i = 0; i < size; i++)
         {
             if(binaryNumber[i] == 0)
             {
@@ -42,7 +41,7 @@ int * convDectoBin(int decimalNumber, int  * binaryNumber)
             }
         }
 
-        for (j = 0; j < 31; j++)
+        for (j = 0; j < size; j++)
         {
             if(binaryNumber[j] == 0)
             {
@@ -93,7 +92,7 @@ static struct _Action actionTable[27] =
                                 };                          
 
 
-Action  * getAction(char * actionName)
+Action  * getAction(char * actionName)/* Gets the name of an action and return it's attribiutes*/
 {
     int k;
     for(k = 0; k < 27; k++)
@@ -136,11 +135,11 @@ int * codeAction(Action * action, int rs, int rt, int rd, int imme, int reg, int
 
     else
     {
-        if(action->actionType == 'R')
+        if(action->actionType == 'R')/*Codind according to R type*/
         {
             
-            tempOP = (int*)malloc(6 * sizeof(int));
-            tempOP = convDectoBin(action->opcode, tempOP);
+            tempOP = (int*)malloc(6 * sizeof(int)); /* OP */
+            tempOP = convDectoBin(action->opcode, tempOP, 6);
             binLine[31] = tempOP[5];
             binLine[30] = tempOP[4];
             binLine[29] = tempOP[3];
@@ -150,8 +149,8 @@ int * codeAction(Action * action, int rs, int rt, int rd, int imme, int reg, int
             free(tempOP);
 
             
-            tempRS = (int*)malloc(5 * sizeof(int));
-            tempRS = convDectoBin(rs,tempRS);
+            tempRS = (int*)malloc(5 * sizeof(int));/* RS */
+            tempRS = convDectoBin(rs,tempRS, 5);
             binLine[25] = tempRS[4];
             binLine[24] = tempRS[3];
             binLine[23] = tempRS[2];
@@ -160,8 +159,8 @@ int * codeAction(Action * action, int rs, int rt, int rd, int imme, int reg, int
             free(tempRS);
 
             
-            tempRD = (int*)malloc(5 * sizeof(int));
-            tempRD = convDectoBin(rt, tempRD);
+            tempRD = (int*)malloc(5 * sizeof(int));/* RD */
+            tempRD = convDectoBin(rt, tempRD, 5);
             binLine[15] = tempRS[4];
             binLine[14] = tempRS[3];
             binLine[13] = tempRS[2];
@@ -170,8 +169,8 @@ int * codeAction(Action * action, int rs, int rt, int rd, int imme, int reg, int
             free(tempRD);
 
             
-            tempFunct = (int*)malloc(5 * sizeof(int));
-            tempFunct = convDectoBin(action->funct, tempFunct);
+            tempFunct = (int*)malloc(5 * sizeof(int));/* FuncT */
+            tempFunct = convDectoBin(action->funct, tempFunct, 5);
             binLine[10] = tempFunct[4];
             binLine[9] = tempFunct[3];
             binLine[8] = tempFunct[2];
@@ -179,11 +178,11 @@ int * codeAction(Action * action, int rs, int rt, int rd, int imme, int reg, int
             binLine[6] = tempFunct[0];
             free(tempFunct);
 
-            if(action->numOfop == 3)
+            if(action->numOfop == 3)/* If needed we will code RT, altought some of the actions doesn't really need it no we will keep it 0 */
             {
                 
                 tempRT = (int*)malloc(5 * sizeof(int));
-                tempRT = convDectoBin(rt,tempRT);
+                tempRT = convDectoBin(rt,tempRT, 5);
                 binLine[20] = tempRT[4];
                 binLine[19] = tempRT[3];
                 binLine[18] = tempRT[2];
@@ -193,10 +192,10 @@ int * codeAction(Action * action, int rs, int rt, int rd, int imme, int reg, int
             }
         }
 
-        if(action->actionType == 'I')
+        if(action->actionType == 'I') /*Codind according to I type*/
         {
             tempOP = (int*)malloc(6 * sizeof(int));
-            tempOP = convDectoBin(action->opcode, tempOP);
+            tempOP = convDectoBin(action->opcode, tempOP, 6);/* OP */
             binLine[31] = tempOP[5];
             binLine[30] = tempOP[4];
             binLine[29] = tempOP[3];
@@ -205,8 +204,8 @@ int * codeAction(Action * action, int rs, int rt, int rd, int imme, int reg, int
             binLine[26] = tempOP[0];
             free(tempOP);
 
-            tempRS = (int*)malloc(5 * sizeof(int));
-            tempRS = convDectoBin(rs,tempRS);
+            tempRS = (int*)malloc(5 * sizeof(int)); /* RS */
+            tempRS = convDectoBin(rs,tempRS, 5);
             binLine[25] = tempRS[4];
             binLine[24] = tempRS[3];
             binLine[23] = tempRS[2];
@@ -214,8 +213,8 @@ int * codeAction(Action * action, int rs, int rt, int rd, int imme, int reg, int
             binLine[21] = tempRS[0];
             free(tempRS);
 
-            tempRT = (int*)malloc(5 * sizeof(int));
-            tempRT = convDectoBin(rt,tempRT);
+            tempRT = (int*)malloc(5 * sizeof(int)); /* RT */
+            tempRT = convDectoBin(rt,tempRT, 5);
             binLine[20] = tempRT[4];
             binLine[19] = tempRT[3];
             binLine[18] = tempRT[2];
@@ -223,8 +222,8 @@ int * codeAction(Action * action, int rs, int rt, int rd, int imme, int reg, int
             binLine[16] = tempRT[0];
             free(tempRT);
 
-            tempImme = (int*)malloc(16 * sizeof(int));
-            tempImme = convDectoBin(imme, tempImme);
+            tempImme = (int*)malloc(16 * sizeof(int)); /* Immedtiet */
+            tempImme = convDectoBin(imme, tempImme, 16);
             binLine[15] = tempImme[15];
             binLine[14] = tempImme[14];
             binLine[13] = tempImme[13];
@@ -245,11 +244,11 @@ int * codeAction(Action * action, int rs, int rt, int rd, int imme, int reg, int
         }
 
 
-        if(action->actionType == 'J')
+        if(action->actionType == 'J') /*Codind according to J type*/
         {
 
             tempOP = (int*)malloc(6 * sizeof(int));
-            tempOP = convDectoBin(action->opcode, tempOP);
+            tempOP = convDectoBin(action->opcode, tempOP, 6); /* OP */
             binLine[31] = tempOP[5];
             binLine[30] = tempOP[4];
             binLine[29] = tempOP[3];
@@ -264,7 +263,7 @@ int * codeAction(Action * action, int rs, int rt, int rd, int imme, int reg, int
 
 
             tempAdd = (int*)malloc(24 * sizeof(int));
-            tempAdd = convDectoBin(add, tempAdd);
+            tempAdd = convDectoBin(add, tempAdd, 24);
             for(y = 24; y >= 0; y--)
             {
                 binLine[y] = tempAdd[y];
@@ -277,12 +276,13 @@ int * codeAction(Action * action, int rs, int rt, int rd, int imme, int reg, int
 
 }
 
-int checkActionSyntax(Action * tempAction, char * line, int strLine) /*coding the action according tot he specification*/
+int checkActionSyntax(Action * tempAction, char * line, int strLine) /* Checking for syntax errors */
 {
     char  * temp;
     char  * temp2;
     char ** doubleCharP;
-    int i = 0, z = 0, symbolFlag = 0, y = 0;
+    int i = 0, z = 0;
+
 
     TextNode  * nextNode;
     TextNode * par;
@@ -293,15 +293,8 @@ int checkActionSyntax(Action * tempAction, char * line, int strLine) /*coding th
     temp = (char*)malloc(strLine);
     temp2 = (char*)malloc(strLine);
 
-    for (y = 0; y < strlen(line); y++)
-    {
-        if(line[y] == ':')
-        {
-            symbolFlag = 1;
-        }
-    }
-
-    for (i = 0; i < strLine ; i++)
+    
+    for (i = 0; i < strLine - 1 ; i++) /* removing spaces */
     {
         if(line[i] != ' ')
         {
@@ -313,7 +306,7 @@ int checkActionSyntax(Action * tempAction, char * line, int strLine) /*coding th
 
     for (i = 0; i < z ; i++)
     {
-        if(temp[i] == temp[i + 1] && (temp[i] == ','))
+        if(temp[i] == temp[i + 1] && (temp[i] == ',')) /* Means there is a comma right after a comma */
         {
             return 1; /* too many commas*/
         }
