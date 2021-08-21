@@ -17,7 +17,7 @@ struct _Action
 };
 typedef struct _Action Action;
 
-int * convDectoBin(int decimalNumber, int  * binaryNumber); /*convert Decimal number to binary*/
+int * convDectoBin(int decimalNumber, int  * binaryNumber, int); /*convert Decimal number to binary*/
 Action  * getAction(char * actionName); /* Return action pointer according ot the action name*/
 
 int * codeAction(Action  * action, int rs, int rt, int rd, int imme, int reg, int add ); /*coding the action according tot he specification*/
